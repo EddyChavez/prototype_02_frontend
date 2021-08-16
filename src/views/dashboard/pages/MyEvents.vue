@@ -1,6 +1,5 @@
 <template>
   <v-container>
-    <!-- <my-list-events /> -->
     <MyListEvents />
   </v-container>
 </template>

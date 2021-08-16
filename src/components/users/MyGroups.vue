@@ -33,65 +33,78 @@
       </v-list>
     </v-card-text>
 
-    <v-dialog v-model="dialog" @click:outside="dialog = false" width="600px">
+    <v-dialog v-model="dialog" @click:outside="dialog = false" width="550px">
       <v-card>
-        <v-card-title>
-          <v-avatar left v-if="detail.avatar">
-            <v-img :src="detail.avatar"></v-img>
-          </v-avatar>
-          <v-avatar left v-else>
-            <v-img src="@/assets/groups.jpg"></v-img>
-          </v-avatar>
-          <span class="text-h2">Grupo: {{ detail.name }}</span>
-        </v-card-title>
-        <v-card-text>
-          <v-col cols="12" class="text-center">
-            <v-chip> Creado por: {{ detail.user }} </v-chip>
-          </v-col>
-          <v-col cols="12" class="text-center">
-            {{ detail.description }}
-          </v-col>
-        </v-card-text>
-        <v-card-text class="text-center">
-          <v-col cols="12" class="text-center">
-            <h4>
-              <strong>Participantes ({{ detail.sum_members }})</strong>
-            </h4>
-          </v-col>
-          <v-list dense>
-            <!-- <v-list-item-group color="primary"> -->
-            <v-list-item v-for="user in list_members" :key="user.id">
-              <v-list-item-avatar>
-                <v-avatar left v-if="user.avatar">
-                  <v-img :src="user.avatar"></v-img>
+        <v-container>
+          <v-card-title>
+            <v-row>
+              <v-col cols="12" md="6">
+                <v-avatar left v-if="detail.avatar">
+                  <v-img :src="detail.avatar"></v-img>
                 </v-avatar>
-                <v-avatar color="indigo" v-else>
-                  <span class="white--text text-h5">{{
-                    user.get_initials
-                  }}</span>
+                <v-avatar left v-else>
+                  <v-img src="@/assets/groups.jpg"></v-img>
                 </v-avatar>
-                <!-- <v-avatar left v-else>
-                    <v-img src="@/assets/groups.jpg"></v-img>
-                  </v-avatar> -->
-              </v-list-item-avatar>
-              <v-list-item-content>
-                <v-list-item-title
-                  v-text="user.get_full_name"
-                ></v-list-item-title>
-                <v-list-item-subtitle v-text="user.email">
-                </v-list-item-subtitle>
-              </v-list-item-content>
-            </v-list-item>
-            <!-- </v-list-item-group> -->
-          </v-list>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
+                <span class="text-h5"> Grupo: {{ detail.name }}</span>
+              </v-col>
 
-          <v-btn color="green darken-1" text @click="dialog = false">
-            Cerrar
-          </v-btn>
-        </v-card-actions>
+              <v-col cols="12" md="6">
+                <v-chip class="ma-2"> Creado por: {{ detail.user }} </v-chip>
+              </v-col>
+            </v-row>
+          </v-card-title>
+          <v-card-text>
+            <v-col cols="12" class="text-center">
+              {{ detail.description }}
+            </v-col>
+            <v-col cols="12" class="text-center">
+              <h4>
+                <strong>Participantes ({{ detail.sum_members }})</strong>
+              </h4>
+            </v-col>
+          </v-card-text>
+          <v-card-text class="text-center">
+            <v-virtual-scroll
+              :items="list_members"
+              height="200"
+              item-height="60"
+            >
+              <template v-slot:default="{ item }">
+                <v-list dense>
+                  <v-list-item :key="item.id">
+                    <v-list-item-avatar>
+                      <v-avatar left v-if="item.avatar">
+                        <v-img :src="item.avatar"></v-img>
+                      </v-avatar>
+                      <v-avatar color="indigo" v-else>
+                        <span
+                          v-if="item.get_initials"
+                          class="white--text text-h5"
+                          >{{ item.get_initials }}</span
+                        >
+                        <v-img v-else src="@/assets/user_group.png"></v-img>
+                      </v-avatar>
+                    </v-list-item-avatar>
+                    <v-list-item-content>
+                      <v-list-item-title
+                        v-text="item.get_full_name"
+                      ></v-list-item-title>
+                      <v-list-item-subtitle v-text="item.email">
+                      </v-list-item-subtitle>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-list>
+              </template>
+            </v-virtual-scroll>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+
+            <v-btn color="green darken-1" text @click="dialog = false">
+              Cerrar
+            </v-btn>
+          </v-card-actions>
+        </v-container>
       </v-card>
     </v-dialog>
   </base-material-card>

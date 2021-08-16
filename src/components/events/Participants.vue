@@ -1,5 +1,5 @@
 <template>
-  <base-material-card :loading="isUpdating">
+  <base-material-card>
     <template v-slot:heading>
       <div class="display-2 font-weight-light">
         Agrega participantes a tu evento
@@ -46,9 +46,12 @@
                       :src="item.avatar"
                     ></v-img>
                     <v-avatar color="indigo" v-else>
-                      <span class="white--text text-h5">{{
-                        item.get_initials
-                      }}</span>
+                      <span
+                        v-if="item.get_initials"
+                        class="white--text text-h5"
+                        >{{ item.get_initials }}</span
+                      >
+                      <v-img v-else src="@/assets/user_group.png"></v-img>
                     </v-avatar>
                   </v-list-item-avatar>
                   <v-list-item-content>
@@ -245,10 +248,14 @@
       </v-card-title>
       <v-data-table :headers="headers" :items="members" :search="search">
         <template v-slot:item.avatar="{ item }">
-          <v-avatar size="56">
-            <img v-if="item.avatar" alt="user" :src="item.avatar" />
-            <img v-else alt="user" src="@/assets/groups.jpg" />
-            <!-- <span v-if="" class="white--text text-h5">{{ item.get_initials }}</span> -->
+          <v-avatar left v-if="item.avatar">
+            <v-img :src="item.avatar"></v-img>
+          </v-avatar>
+          <v-avatar color="indigo" v-else>
+            <span v-if="item.get_initials" class="white--text text-h5">{{
+              item.get_initials
+            }}</span>
+            <v-img v-else src="@/assets/user_group.png"></v-img>
           </v-avatar>
         </template>
         <template v-slot:item.actions="{ item }">
@@ -261,7 +268,13 @@
 
     <v-col cols="12" md="12" class="text-center">
       <div class="text-center flex">
-        <v-btn rounded color="blue" dark @click="dialogDelete = true">
+        <v-btn
+          :loading="loading"
+          rounded
+          color="blue"
+          dark
+          @click="dialogDelete = true"
+        >
           <v-icon>
             mdi-share-variant-outline
           </v-icon>
@@ -269,46 +282,67 @@
         </v-btn>
       </div>
       <v-dialog v-model="dialogDelete" max-width="500px">
-        <v-card class="mx-auto">
-          <v-card-title>
-            Se enviarán emails para notificar
-          </v-card-title>
+        <v-card>
+          <v-container>
+            <v-card-title>
+              <strong
+                >Se enviarán invitaciones por email para notificar.</strong
+              >
+            </v-card-title>
 
-          <v-row justify="center">
             <v-card-text>
-              <v-list-item three-line>
-                <v-list-item-content>
-                  <v-list-item-title
-                    >Ahora el evento estará disponible, solo para los
-                    Participantes.</v-list-item-title
-                  >
-                  <v-list-item-title
-                    >Podrán aceptar o rechazar el evento.</v-list-item-title
-                  >
-                  <v-list-item-title
-                    >Generar sus pedidos, e interactuar con el
-                    evento.</v-list-item-title
-                  >
-                </v-list-item-content>
-              </v-list-item>
-
-              <strong>({{ count_participants }}) Emails agregados</strong>.
+              <v-row justify="center">
+                <v-col cols="12">
+                  <v-spacer></v-spacer>
+                  <v-list-item three-line>
+                    <v-list-item-content>
+                      <v-list-item-title
+                        >* Ahora el evento estará disponible, solo para los
+                        Participantes.</v-list-item-title
+                      >
+                      <v-list-item-title
+                        >* Podrán aceptar o rechazar el
+                        evento.</v-list-item-title
+                      >
+                      <v-list-item-title
+                        >* Generar sus pedidos. evento.</v-list-item-title
+                      >
+                      <v-list-item-title
+                        >* cambiara Estatus:
+                        <v-chip
+                          class="ma-2"
+                          color="orange"
+                          label
+                          text-color="white"
+                          x-small
+                        >
+                          EN PROCESO
+                        </v-chip></v-list-item-title
+                      >
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-col>
+                <br />
+                <v-spacer></v-spacer>
+                <strong>({{ count_participants }}) Emails agregados</strong>.
+              </v-row>
             </v-card-text>
-          </v-row>
-          <v-card-actions>
-            <v-spacer></v-spacer>
 
-            <v-btn color="blue darken-1" text @click="dialogDelete = false"
-              >Cancelar</v-btn
-            >
-            <v-btn color="blue" dark @click="sendInvitations">
-              Enviar
-              <v-icon right>
-                mdi-send
-              </v-icon>
-            </v-btn>
-            <v-spacer></v-spacer>
-          </v-card-actions>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+
+              <v-btn color="blue darken-1" text @click="dialogDelete = false"
+                >Cancelar</v-btn
+              >
+              <v-btn rounded color="blue" dark @click="sendInvitations">
+                Enviar
+                <v-icon right>
+                  mdi-send
+                </v-icon>
+              </v-btn>
+              <v-spacer></v-spacer>
+            </v-card-actions>
+          </v-container>
         </v-card>
       </v-dialog>
     </v-col>
@@ -329,11 +363,11 @@ export default {
   data() {
     return {
       kword: "",
+      loading: false,
       groups: [],
       members: [],
       search: "",
       tab: null,
-      isUpdating: false,
       headers: [
         {
           text: "",
@@ -359,16 +393,16 @@ export default {
       ],
       valid: false,
       iconIndex: 0,
-      dialogDelete: false
+      dialogDelete: false,
+      redirect: false
     };
   },
-
+  computed: {
+    idEvent() {
+      return this.$route.params.id;
+    }
+  },
   watch: {
-    isUpdating(val) {
-      if (val) {
-        setTimeout(() => (this.isUpdating = false), 3000);
-      }
-    },
     search_users(val) {
       if (this.items_users.length > 0) return;
 
@@ -475,12 +509,18 @@ export default {
     sendInvitations() {
       let formData = new FormData();
 
-      formData.append("idEvent", 26);
-      formData.append("listEmails", "rafalopezrl749@gmail.com");
+      console.log(this.members);
+
+      formData.append("idEvent", this.idEvent);
+      this.members.forEach(item => {
+        formData.append("listEmails", item.email);
+      });
 
       apiGroups
         .sendEmail(formData)
         .then(response => {
+          this.dialogDelete = false;
+
           let notification = {
             snackbar: true,
             direction: "top center",
@@ -488,8 +528,18 @@ export default {
             important: "",
             color: "success"
           };
-
           this.$store.dispatch("showNotification", notification);
+
+          this.loading = true;
+          setTimeout(() => (this.loading = false), 3000);
+
+          setTimeout(() => (this.redirect = true), 3000);
+
+          if (this.redirect) {
+            this.$router.push({
+              name: "Eventos"
+            });
+          }
         })
         .catch(error => {
           let notification = {
@@ -500,11 +550,8 @@ export default {
             color: "error"
           };
           this.$store.dispatch("showNotification", notification);
+          this.dialogDelete = false;
         });
-
-      this.dialogDelete = false;
-
-      this.$router.push("Eventos");
     }
   }
 };

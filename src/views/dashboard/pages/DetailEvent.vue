@@ -349,7 +349,7 @@ export default {
       if (this.$refs.form.validate()) {
         const formData = new FormData();
 
-        formData.append("order", 3);
+        formData.append("order", 4);
         formData.append("product", this.order.product);
         formData.append("description", this.order.description);
         formData.append("price", this.order.price);
@@ -395,7 +395,7 @@ export default {
       if (this.$refs.form.validate()) {
         const formData = new FormData();
 
-        formData.append("order", 3);
+        formData.append("order", 4);
         formData.append("product", this.order.product);
         formData.append("description", this.order.description);
         formData.append("price", this.order.price);

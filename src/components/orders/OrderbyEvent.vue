@@ -5,27 +5,47 @@
         <base-material-card color="primary">
           <template v-slot:heading>
             <v-row>
-              <v-col cols="12" md="6">
+              <!-- <v-col cols="12" md="6">
                 <div class="display-2 font-weight-light">
                   Pedido del Evento
                 </div>
+              </v-col> -->
+              <div class="subtitle-1 font-weight-light">
+                Se muestran todos los pedidos de cada participante
+              </div>
+            </v-row>
+            <v-row>
+              <v-col cols="12" md="4">
+                <div class="display-2 float-md-center font-weight-bold">
+                  Propina: $ 60.00
+                </div>
               </v-col>
-
-              <!-- <div class="subtitle-1 font-weight-light">
-              Are you looking for more components? Please check our Premium
-              Version of Vuetify Material Dashboard
-            </div> -->
-              <v-col cols="12" md="3">
-                <div class="display-2 float-md-left font-weight-bold">
+              <v-col cols="12" md="4">
+                <div class="display-2 float-md-center font-weight-bold">
                   Cantidad: {{ count }}
                 </div>
               </v-col>
-              <v-col cols="12" md="3">
-                <div class="display-2 float-md-left font-weight-bold">
+              <v-col cols="12" md="4">
+                <div class="display-2 float-md-center font-weight-bold">
                   Total: $ {{ total }}
                 </div>
               </v-col>
             </v-row>
+            <!-- <v-row>
+              <v-col cols="12">
+                <div class="d-flex justify-space-around mb-12 pa-2">
+                  <div class="display-2 font-weight-bold">
+                    Propina: $ {{ total }}
+                  </div>
+                  <div class="display-2  font-weight-bold">
+                    Cantidad: $ {{ count }}
+                  </div>
+                  <div class="display-2  font-weight-bold">
+                    Total: $ {{ total }}
+                  </div>
+                </div>
+              </v-col>
+            </v-row> -->
           </template>
 
           <v-data-table
@@ -76,23 +96,39 @@
               </td>
             </template>
             <template v-slot:item.user.avatar="{ item }">
-              <v-avatar size="50" v-if="item.user.avatar">
-                <img alt="user" :src="item.user.avatar" />
+              <v-avatar size="50" left v-if="item.user.avatar">
+                <v-img :src="item.user.avatar"></v-img>
               </v-avatar>
-              <v-avatar color="red" v-else>
-                <span class="white--text text-h5">{{
-                  item.user.get_initials
-                }}</span>
+              <v-avatar color="indigo" v-else>
+                <span
+                  v-if="item.user.get_initials"
+                  class="white--text text-h5"
+                  >{{ item.user.get_initials }}</span
+                >
+                <v-img v-else src="@/assets/user_group.png"></v-img>
               </v-avatar>
+            </template>
+            <template v-slot:item.user.get_full_name="{ item }">
+              <span v-if="item.user.get_full_name"
+                >{{ item.user.get_full_name }}
+              </span>
+              <span v-else> {{ item.user.email }} </span>
             </template>
             <template v-slot:item.amount="{ item }">
               $ {{ item.amount }}
             </template>
             <template v-slot:item.quantity="{ item }">
-              <div class="text-center">
-                {{ item.quantity }}
-              </div>
+              {{ item.quantity }}
             </template>
+            <template v-slot:item.paid_out="{ item }">
+              <v-icon large v-if="item.paid_out == false" color="red">
+                mdi-cash-remove
+              </v-icon>
+              <v-icon large v-else color="green">
+                mdi-cash-plus
+              </v-icon>
+            </template>
+
             <template v-slot:item.date="{ item }">
               {{ frontEndDateFormat(item.date) }}
             </template>
@@ -123,6 +159,45 @@
             </template>
           </v-data-table> -->
         </base-material-card>
+      </v-col>
+      <v-col cols="12" md="3">
+        <v-card>
+          <v-card-text>
+            <v-row justify="center">
+              Administrar
+            </v-row>
+
+            <v-row class="ma-6" justify="center">
+              <v-btn class="ma-2" rounded color="green" dark>
+                <v-icon left>
+                  mdi-cash-multiple
+                </v-icon>
+                Agregar Pago
+              </v-btn>
+
+              <v-btn class="ma-2" rounded color="blue" dark>
+                <v-icon left>
+                  mdi-file-pdf-outline
+                </v-icon>
+                Descargar
+              </v-btn>
+
+              <v-btn class="ma-2" rounded color="gray" dark>
+                <v-icon left>
+                  mdi-printer
+                </v-icon>
+                Imprimir
+              </v-btn>
+
+              <v-btn class="ma-2" rounded color="red" dark>
+                <v-icon left>
+                  mdi-close-thick
+                </v-icon>
+                Concluir evento
+              </v-btn>
+            </v-row>
+          </v-card-text>
+        </v-card>
       </v-col>
     </v-row>
     <!-- <base-material-card
@@ -196,26 +271,12 @@
 <script>
 import apiOrders from "@/api/orders";
 import moment from "moment";
-import {
-  mdiCashRemove,
-  mdiCashCheck,
-  mdiCashPlus,
-  mdiCashRefund
-} from "@mdi/js";
 
 export default {
   name: "OrderbyEvent",
   data() {
     return {
       loading: false,
-      idEvent: 0,
-      icons: {
-        mdiCashRemove,
-        mdiCashCheck,
-        mdiCashPlus,
-        mdiCashRefund
-      },
-
       orderstHeaders: [
         {
           text: "",
@@ -224,7 +285,8 @@ export default {
           value: "user.avatar"
         },
         { text: "Usuario", value: "user.get_full_name" },
-        { text: "Fecha", value: "date" },
+        // { text: "Fecha", value: "date" },
+        { text: "Pagado", value: "paid_out" },
         { text: "Cantidad", value: "quantity" },
         { text: "Total", value: "amount" },
         { text: "", value: "data-table-expand" }
@@ -236,6 +298,11 @@ export default {
       total: 0,
       count: 0
     };
+  },
+  computed: {
+    idEvent() {
+      return this.$route.params.id;
+    }
   },
   mounted: function() {
     this.loadOrder();
@@ -252,7 +319,6 @@ export default {
       return quantity * price;
     },
     loadOrder: function() {
-      this.idEvent = this.$route.params.id;
       apiOrders.byEvent(this.idEvent).then(response => {
         this.list_orders = response.data;
 
@@ -280,9 +346,4 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
-.summarize {
-  border: 2px solid green;
-  border-radius: 75px;
-}
-</style>
+<style lang="scss" scoped></style>

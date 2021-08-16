@@ -28,19 +28,19 @@ export default new Router({
       children: [
         {
           name: "Eventos",
-          path: "components/events",
+          path: "pages/events",
           component: () => import("@/views/dashboard/pages/Events")
         },
         // Detail Event
         {
-          name: "Detalle-Evento",
-          path: "components/events/detail/:id",
-          component: () => import("@/views/dashboard/pages/DetailEvent")
+          name: "Detalle del Evento",
+          path: "pages/events/:id/detail/",
+          component: () => import("@/views/dashboard/pages/ShowEvent")
         },
         // Order by Event
         {
-          name: "Orden-Evento",
-          path: "components/orders/:id",
+          name: "Pedido del Evento",
+          path: "pages/events/:id/orders/",
           component: () => import("@/views/dashboard/pages/Order")
         },
 
@@ -51,7 +51,7 @@ export default new Router({
         },
         {
           name: "Administrar Evento",
-          path: "pages/my-events/admin/:id",
+          path: "pages/my-events/:id/admin/",
           component: () => import("@/views/dashboard/pages/AdminEvent")
         },
         {

@@ -3,7 +3,7 @@
     <v-row justify="center">
       <v-col cols="12" md="8">
         <participants v-if="showUsers" />
-        <detail-event v-else />
+        <edit-event v-else />
       </v-col>
       <v-col cols="12" md="4">
         <card-event />
@@ -22,14 +22,14 @@
 
 <script>
 import CardEvent from "@/components/events/CardEvent.vue";
-import DetailEvent from "@/components/events/DetailEvent.vue";
+import EditEvent from "@/components/events/EditEvent.vue";
 import Participants from "@/components/events/Participants.vue";
 
 export default {
   name: "AdminEvent",
   components: {
     CardEvent,
-    DetailEvent,
+    EditEvent,
     Participants
   },
   data() {

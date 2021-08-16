@@ -40,6 +40,9 @@ const apiUsers = {
   },
   resetPassword: function(email) {
     return axios.post(`${API_URL}/api/password_reset/`, email);
+  },
+  confirmPassword: function(formData) {
+    return axios.post(`${API_URL}/api/password_reset/confirm/`, formData);
   }
 };
 

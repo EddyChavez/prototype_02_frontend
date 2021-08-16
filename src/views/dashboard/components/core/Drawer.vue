@@ -90,7 +90,7 @@ export default {
       {
         title: "eventos",
         icon: "mdi-view-dashboard",
-        to: "/components/events"
+        to: "/pages/events"
       },
       {
         title: "mis eventos",

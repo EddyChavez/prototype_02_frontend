@@ -162,6 +162,9 @@
                             prepend-icon="mdi-lock-outline"
                             :rules="oldPasswordRules"
                             v-model="old_password"
+                            :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
+                            :type="show1 ? 'text' : 'password'"
+                            @click:append="show1 = !show1"
                           />
                         </v-col>
 
@@ -172,6 +175,9 @@
                             prepend-icon="mdi-lock-check"
                             :rules="passwordRules"
                             v-model="new_password"
+                            :append-icon="show2 ? 'mdi-eye' : 'mdi-eye-off'"
+                            :type="show2 ? 'text' : 'password'"
+                            @click:append="show2 = !show2"
                           />
                         </v-col>
 
@@ -182,6 +188,9 @@
                             prepend-icon="mdi-lock-check-outline"
                             :rules="passwordConfirmRules"
                             v-model="new_password_confirm"
+                            :append-icon="show3 ? 'mdi-eye' : 'mdi-eye-off'"
+                            :type="show3 ? 'text' : 'password'"
+                            @click:append="show3 = !show3"
                           />
                         </v-col>
 
@@ -247,6 +256,9 @@ export default {
         v => !!v || "Este campo es requerido",
         v => v === this.new_password || "Las contraseñas no son iguales"
       ],
+      show1: false,
+      show2: false,
+      show3: false,
       errors: []
     };
   },

@@ -26,14 +26,6 @@
       <div>{{ event.description }}</div>
     </v-card-text>
 
-    <!-- <v-card-text>
-      <div class="text-center flex">
-        <v-btn small rounded color="blue" dark @click="addParticipants()">
-          Agregar Participantes
-        </v-btn>
-      </div>
-    </v-card-text> -->
-
     <v-divider class="mx-4"></v-divider>
 
     <v-card-text>

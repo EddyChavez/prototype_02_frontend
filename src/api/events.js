@@ -2,8 +2,8 @@ import { API_URL } from "@/utils/constants.js";
 import axios from "axios";
 
 const apiEvents = {
-  list: function() {
-    return axios.get(`${API_URL}/api/events/`);
+  list: function(status, page) {
+    return axios.get(`${API_URL}/api/events/list/${status}/?page=${page}`);
   },
   listDetail: function(idEvent) {
     return axios.get(`${API_URL}/events/${idEvent}/`);
