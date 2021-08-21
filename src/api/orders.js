@@ -19,6 +19,9 @@ const apiOrders = {
   },
   editItem: function(idOrder, formData) {
     return axios.put(`${API_URL}/api/orders/cart/edit/${idOrder}/`, formData);
+  },
+  editPaid: function(idOrder, formData) {
+    return axios.put(`${API_URL}/api/orders/paid-out/${idOrder}/`, formData);
   }
 };
 

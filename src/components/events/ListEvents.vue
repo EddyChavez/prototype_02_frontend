@@ -3,10 +3,10 @@
     <v-row justify="center">
       <div class="text-center">
         <v-chip-group active-class="primary--text">
-          <v-chip @click="filter('EN PROCESO')">
+          <v-chip @click="(page = 1), filter('EN PROCESO')">
             En Proceso
           </v-chip>
-          <v-chip @click="filter('CONCLUIDO')">
+          <v-chip @click="(page = 1), filter('CONCLUIDO')">
             Concluidos
           </v-chip>
         </v-chip-group>
@@ -88,7 +88,7 @@
         </v-sheet>
       </v-col>
     </v-row>
-    <v-row v-else>
+    <v-row v-if="list_events.length == 0">
       <v-col cols="12">
         <div class="text-center">
           <br />
@@ -108,7 +108,6 @@
         v-model="page"
         :length="numPages"
         :total-visible="totalVisible"
-        @input="changePage"
         circle
       ></v-pagination>
     </div>
@@ -127,8 +126,17 @@ export default {
       loading: false,
       page: 1,
       numPages: 1,
-      totalVisible: 7
+      totalVisible: 7,
+      filter_status: ""
     };
+  },
+  watch: {
+    filter_status() {
+      this.numPages = 1;
+    },
+    page() {
+      this.filter(this.filter_status);
+    }
   },
   mounted: function() {
     this.filter("EN PROCESO");
@@ -139,16 +147,16 @@ export default {
       this.loading = true;
       setTimeout(() => (this.loading = false), 2000);
     },
-    changePage() {
-      apiEvents.list("EN PROCESO", this.page).then(response => {
-        this.list_events = response.data.results;
-        this.numPages = parseInt(response.data.count / 2 + 1);
-      });
-    },
     filter: function(status) {
+      this.filter_status = status;
+
       apiEvents.list(status, this.page).then(response => {
         this.list_events = response.data.results;
-        this.numPages = parseInt(response.data.count / 2 + 1);
+
+        let num = response.data.count / 2;
+
+        if (num % 1 != 0) this.numPages = parseInt(num) + 1;
+        else this.numPages = num;
       });
     },
     showDetailPanel: function(idEvent) {
