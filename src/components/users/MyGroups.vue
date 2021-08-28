@@ -45,17 +45,21 @@
                 <v-avatar left v-else>
                   <v-img src="@/assets/groups.jpg"></v-img>
                 </v-avatar>
-                <span class="text-h5"> Grupo: {{ detail.name }}</span>
+                <span class="text-h5">
+                  <strong>Grupo: </strong>{{ detail.name }}</span
+                >
               </v-col>
 
-              <v-col cols="12" md="6">
-                <v-chip class="ma-2"> Creado por: {{ detail.user }} </v-chip>
+              <v-col v-if="detail.user" cols="12" md="6">
+                <v-chip class="ma-2">
+                  Creado por: {{ detail.user.get_full_name }}
+                </v-chip>
               </v-col>
             </v-row>
           </v-card-title>
           <v-card-text>
             <v-col cols="12" class="text-center">
-              {{ detail.description }}
+              <strong>Descripción: </strong>{{ detail.description }}
             </v-col>
             <v-col cols="12" class="text-center">
               <h4>

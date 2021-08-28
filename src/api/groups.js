@@ -4,22 +4,46 @@ import axios from "axios";
 
 const apiGroups = {
   byUser: function(idUser) {
-    return axios.get(`${API_URL}/api/tribes/by-user/${idUser}/`);
+    return axios.get(`${API_URL}/api/tribes/by-user/${idUser}/`, {
+      headers: {
+        Authorization: `Token ${getTokenApi()}`
+      }
+    });
   },
   myGroups: function(idUser) {
-    return axios.get(`${API_URL}/api/users/belong-tribes/${idUser}/`);
+    return axios.get(`${API_URL}/api/users/belong-tribes/${idUser}/`, {
+      headers: {
+        Authorization: `Token ${getTokenApi()}`
+      }
+    });
   },
   members: function(kword) {
-    return axios.get(`${API_URL}/api/members/?kword=${kword}`);
+    return axios.get(`${API_URL}/api/members/?kword=${kword}`, {
+      headers: {
+        Authorization: `Token ${getTokenApi()}`
+      }
+    });
   },
   getUsers: function() {
-    return axios.get(`${API_URL}/api/users/`);
+    return axios.get(`${API_URL}/api/users/`, {
+      headers: {
+        Authorization: `Token ${getTokenApi()}`
+      }
+    });
   },
   getGroups: function(kword) {
-    return axios.get(`${API_URL}/api/tribes/?kword=${kword}`);
+    return axios.get(`${API_URL}/api/tribes/?kword=${kword}`, {
+      headers: {
+        Authorization: `Token ${getTokenApi()}`
+      }
+    });
   },
   getMembers: function(idGroup) {
-    return axios.get(`${API_URL}/api/tribes/members/${idGroup}/`);
+    return axios.get(`${API_URL}/api/tribes/members/${idGroup}/`, {
+      headers: {
+        Authorization: `Token ${getTokenApi()}`
+      }
+    });
   },
   addGroup: function(formData) {
     return axios.post(`${API_URL}/api/tribes/add/`, formData, {

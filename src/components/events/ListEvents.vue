@@ -36,15 +36,16 @@
             <v-card-title>{{ event.name }}</v-card-title>
 
             <v-card-text>
-              <v-chip
-                class="ma-2"
-                :color="event.status == 'EN PROCESO' ? 'orange' : 'red'"
-                label
-                text-color="white"
-                x-small
-              >
-                {{ event.status }}
-              </v-chip>
+              <div class="text-center">
+                <v-chip
+                  class="ma-2"
+                  :color="getColor(event.status)"
+                  label
+                  text-color="white"
+                >
+                  {{ event.status }}
+                </v-chip>
+              </div>
 
               <div class="my-4 text-subtitle-1">
                 <p class="font-weight-black">
@@ -66,14 +67,14 @@
               </v-btn>
             </div>
 
-            <v-divider class="mx-4"></v-divider>
+            <v-divider class="ma-2"></v-divider>
 
             <v-card-text>
               <v-row justify="center">
                 <v-col cols="12" md="6">
                   <div class="text-subtitle-2">
                     <v-icon color="grey darken-2"> mdi-calendar </v-icon>
-                    {{ event.date_start }}
+                    {{ frontEndDateFormat(event.date_start) }}
                   </div>
                 </v-col>
                 <v-col cols="12" md="6">
@@ -152,6 +153,7 @@ export default {
 
       apiEvents.list(status, this.page).then(response => {
         this.list_events = response.data.results;
+        console.log(this.list_events);
 
         let num = response.data.count / 2;
 
@@ -164,6 +166,19 @@ export default {
         name: "Detalle del Evento",
         params: { id: idEvent }
       });
+    },
+    getColor(status) {
+      switch (status) {
+        case "EN PROCESO":
+          return "orange";
+        case "LLEGO PEDIDO":
+          return "blue";
+        default:
+          return "red";
+      }
+    },
+    frontEndDateFormat: function(date) {
+      return moment(date, "YYYY-MM-DD").format("DD/MM/YYYY");
     }
   }
 };

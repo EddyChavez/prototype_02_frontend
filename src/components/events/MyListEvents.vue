@@ -110,9 +110,22 @@
                       </v-col>
                       <v-col cols="12" sm="12" md="12">
                         <v-row v-if="imageSelected" justify="center">
-                          <v-avatar size="100">
+                          <v-avatar size="80">
                             <img alt="user" :src="imageSelected" />
                           </v-avatar>
+                          <v-btn
+                            v-if="imageSelected"
+                            class="ma-5"
+                            outlined
+                            color="red"
+                            fab
+                            small
+                            @click="removeImage()"
+                          >
+                            <v-icon small>
+                              mdi-close
+                            </v-icon>
+                          </v-btn>
                         </v-row>
 
                         <v-file-input
@@ -169,6 +182,9 @@
         <v-chip :color="getColor(item.status)" dark>
           {{ item.status }}
         </v-chip>
+      </template>
+      <template v-slot:item.date_start="{ item }">
+        {{ frontEndDateFormat(item.date_start) }}
       </template>
       <template v-slot:item.image="{ item }">
         <v-avatar size="56">
@@ -269,6 +285,7 @@ export default {
         image: null
       },
       imageSelected: null,
+      remove_image: false,
       newImage: null,
       date: new Date().toISOString().substr(0, 10),
       menu1: false,
@@ -356,6 +373,11 @@ export default {
       });
     },
 
+    removeImage() {
+      this.remove_image = true;
+      this.imageSelected = null;
+    },
+
     closeDelete() {
       this.dialogDelete = false;
       this.$nextTick(() => {
@@ -390,8 +412,10 @@ export default {
           if (this.newImage !== null) {
             formDataEdit.append("image", this.editedItem.image);
           }
+          if (this.remove_image) {
+            formDataEdit.append("image", "");
+          }
 
-          console.log(formDataEdit);
           apiEvents
             .update(idEvent, formDataEdit)
             .then(response => {
@@ -449,9 +473,14 @@ export default {
           return "green";
         case "EN PROCESO":
           return "orange";
+        case "LLEGO PEDIDO":
+          return "blue";
         default:
           return "red";
       }
+    },
+    frontEndDateFormat: function(date) {
+      return moment(date, "YYYY-MM-DD").format("DD/MM/YYYY");
     }
   }
 };

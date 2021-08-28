@@ -23,6 +23,11 @@ export default new Router({
       component: () => import("@/views/dashboard/users/ResetPasswordPage")
     },
     {
+      name: "Confirm",
+      path: "/reset-password/confirm/:token",
+      component: () => import("@/views/dashboard/users/ResetPasswordConfirm")
+    },
+    {
       path: "/",
       component: () => import("@/views/dashboard/Index"),
       children: [
@@ -59,12 +64,12 @@ export default new Router({
           path: "ckeditor",
           component: () => import("@/components/events/Editor")
         },
-        // Eventos
-        // {
-        //   name: "Eventos",
-        //   path: "",
-        //   component: () => import("@/views/dashboard/Dashboard")
-        // },
+        //Eventos
+        {
+          name: "Home",
+          path: "",
+          component: () => import("@/views/dashboard/Home")
+        },
         //Dashboard
         // {
         //   name: "Dashboard",

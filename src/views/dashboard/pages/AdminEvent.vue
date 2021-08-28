@@ -24,6 +24,7 @@
 import CardEvent from "@/components/events/CardEvent.vue";
 import EditEvent from "@/components/events/EditEvent.vue";
 import Participants from "@/components/events/Participants.vue";
+import apiEvents from "@/api/events/";
 
 export default {
   name: "AdminEvent",
@@ -38,6 +39,51 @@ export default {
       button_text: "Agregar Participantes"
     };
   },
+  computed: {
+    idEvent() {
+      return this.$route.params.id;
+    },
+    getUser() {
+      return this.$store.getters.getUser.id;
+    }
+  },
+  // mounted() {
+  //   let flag = false;
+  //   apiEvents
+  //     .validate_permission(this.idEvent, 1)
+  //     .then(response => {
+  //       flag = response.data;
+  //     })
+  //     .catch(error => {
+  //       flag = false;
+  //     });
+  //   if (flag === false) {
+  //     console.log("No tienes permiso para editar este evento!");
+  //     this.$router.push({
+  //       name: "Mis Eventos"
+  //     });
+  //   }
+  // },
+  //beforeMount() {
+  // console.log("preparando...");
+  // console.log(this.idEvent);
+  // console.log(this.getUser);
+  // let flag = false;
+  // apiEvents
+  //   .validate_permission(this.idEvent, 1)
+  //   .then(response => {
+  //     flag = response.data;
+  //   })
+  //   .catch(error => {
+  //     flag = false;
+  //   });
+  // if (flag === false) {
+  //   console.log("No tienes permiso para editar este evento!");
+  //   this.$router.push({
+  //     name: "Mis Eventos"
+  //   });
+  // }
+  //},
   methods: {
     addParticipants() {
       this.showUsers = !this.showUsers;

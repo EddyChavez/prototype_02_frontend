@@ -18,7 +18,7 @@
     <v-divider class="mb-1" />
 
     <v-list dense nav>
-      <v-list-item>
+      <v-list-item @click="to_home">
         <v-list-item-avatar class="align-self-center" color="white" contain>
           <v-img
             src="https://demos.creative-tim.com/vuetify-material-dashboard/favicon.ico"
@@ -53,6 +53,13 @@
     </v-list>
 
     <template v-slot:append>
+      <base-item
+        :item="{
+          title: $t('Tutorial'),
+          icon: 'mdi-youtube',
+          to: '/contact'
+        }"
+      />
       <base-item
         :item="{
           title: $t('Contacto'),
@@ -157,7 +164,8 @@ export default {
     profile() {
       return {
         avatar: true,
-        title: this.$t("avatar")
+        title: "Home"
+        //title: this.$t("avatar")
       };
     }
   },
@@ -169,6 +177,11 @@ export default {
         children: item.children ? item.children.map(this.mapItem) : undefined,
         title: this.$t(item.title)
       };
+    },
+    to_home() {
+      this.$router.push({
+        path: "/"
+      });
     }
   }
 };

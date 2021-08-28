@@ -29,6 +29,19 @@
             <v-avatar v-if="loadImage1" size="60">
               <img alt="user" :src="loadImage1" />
             </v-avatar>
+            <v-btn
+              v-if="loadImage1"
+              class="ma-2"
+              outlined
+              color="red"
+              fab
+              small
+              @click="removeImage1()"
+            >
+              <v-icon small>
+                mdi-close
+              </v-icon>
+            </v-btn>
           </v-row>
           <v-file-input
             v-if="showForm"
@@ -38,11 +51,9 @@
             v-model="new_image1"
             @change="loadImage_1()"
           ></v-file-input>
-          <v-img
-            v-if="showForm & loadImage1"
-            :src="loadImage1"
-            height="125"
-          ></v-img>
+          <v-row v-if="!showForm">
+            <v-img v-if="loadImage1" :src="loadImage1" height="125"></v-img>
+          </v-row>
         </v-col>
 
         <v-col cols="12" md="6">
@@ -50,6 +61,19 @@
             <v-avatar v-if="loadImage2" size="60">
               <img alt="user" :src="loadImage2" />
             </v-avatar>
+            <v-btn
+              v-if="loadImage2"
+              class="ma-2"
+              outlined
+              color="red"
+              fab
+              small
+              @click="removeImage2()"
+            >
+              <v-icon small>
+                mdi-close
+              </v-icon>
+            </v-btn>
           </v-row>
           <v-file-input
             v-if="showForm"
@@ -59,11 +83,9 @@
             v-model="new_image2"
             @change="loadImage_2()"
           ></v-file-input>
-          <v-img
-            v-if="showForm & loadImage2"
-            :src="loadImage2"
-            height="125"
-          ></v-img>
+          <v-row v-if="!showForm">
+            <v-img v-if="loadImage2" :src="loadImage2" height="125"></v-img
+          ></v-row>
         </v-col>
       </v-row>
       <v-row justify="center">
@@ -80,6 +102,19 @@
             >
               Descargar
             </v-btn>
+            <v-btn
+              v-if="loadfile"
+              class="ma-0"
+              outlined
+              color="red"
+              fab
+              small
+              @click="removeFile()"
+            >
+              <v-icon small>
+                mdi-close
+              </v-icon>
+            </v-btn>
           </v-row>
           <br />
           <v-file-input
@@ -90,9 +125,9 @@
             prepend-icon="mdi-file-pdf-box-outline"
             v-model="model.file"
           ></v-file-input>
-          <v-row justify="center">
+          <v-row v-if="!showForm" justify="center">
             <v-btn
-              v-if="showForm & loadfile"
+              v-if="loadfile"
               class="ma-2"
               color="blue"
               :href="loadfile"
@@ -117,7 +152,20 @@
             Guardar
           </v-btn>
           <v-btn
-            v-else
+            v-if="showButton"
+            class="mr-2"
+            outlined
+            color="red"
+            fab
+            small
+            @click="editDetail()"
+          >
+            <v-icon small>
+              mdi-close
+            </v-icon>
+          </v-btn>
+          <v-btn
+            v-if="!showButton"
             rounded
             color="green"
             dark
@@ -128,23 +176,26 @@
           </v-btn>
         </v-col>
       </v-row>
+      <alerts />
     </v-container>
   </base-material-card>
 </template>
 
 <script>
+import { mapState } from "vuex";
+
 import { VueEditor, Quill } from "vue2-editor";
 import { ImageDrop } from "quill-image-drop-module";
 import ImageResize from "quill-image-resize-module";
 import apiEvents from "@/api/events/";
+import Alerts from "@/components/base/Alerts.vue";
 
 Quill.register("modules/imageDrop", ImageDrop);
 Quill.register("modules/imageResize", ImageResize);
 
 export default {
   name: "EditEvent",
-  components: { VueEditor },
-
+  components: { VueEditor, Alerts },
   data() {
     return {
       loading: false,
@@ -160,14 +211,16 @@ export default {
       },
       new_image1: null,
       new_image2: null,
-      loadImage1: [],
-      loadImage2: [],
+      loadImage1: null,
+      loadImage2: null,
+      remove_image1: false,
+      remove_image2: false,
+      remove_file: false,
       loadfile: null,
       showButton: true,
       showForm: true,
       editorSettings: {
         modules: {
-          //imageResize: true
           imageDrop: true,
           imageResize: {}
         }
@@ -179,6 +232,7 @@ export default {
       return this.$route.params.id;
     }
   },
+
   mounted: function() {
     this.RetrieveDetailEvent();
   },
@@ -193,6 +247,20 @@ export default {
     loadImage_2() {
       this.model.image2 = this.new_image2;
     },
+    removeImage1() {
+      this.remove_image1 = true;
+      this.loadImage1 = null;
+      this.new_image1 = null;
+    },
+    removeImage2() {
+      this.remove_image2 = true;
+      this.loadImage2 = null;
+      this.new_image2 = null;
+    },
+    removeFile() {
+      this.remove_file = true;
+      this.loadfile = null;
+    },
     RetrieveDetailEvent() {
       apiEvents
         .detail(this.idEvent)
@@ -204,16 +272,35 @@ export default {
           this.loadImage1 = response.data[0].image1;
           this.loadImage2 = response.data[0].image2;
           this.loadfile = response.data[0].file;
-          //this.model.file = response.data[0].file;
-          //   this.showButton = !this.showButton;
-          //   this.showForm = !this.showForm;
         })
         .catch(error => {
           console.log(error);
         });
     },
+    // Validate() {
+    //   let flag;
+
+    //   apiEvents
+    //     .validate_permission(this.idEvent, this.idUser)
+    //     .then(response => {
+    //       flag = response.data;
+    //       //console.log("No tienes permiso para editar este evento!");
+    //     })
+    //     .catch(error => {
+    //       flag = false;
+    //     });
+
+    //   return flag;
+    // },
     saveDetail() {
       this.loading = true;
+
+      let notification = {
+        snackbar: true,
+        direction: "top center",
+        msg: "Guardado Exitosamente!",
+        color: "success"
+      };
 
       const formData = new FormData();
       this.model.name = this.idEvent;
@@ -229,12 +316,24 @@ export default {
       if (this.model.file !== null) {
         formData.append("file", this.model.file);
       }
+      // eliminar archivos
+      if (this.remove_image1) {
+        formData.append("image1", "");
+      }
+      if (this.remove_image2) {
+        formData.append("image2", "");
+      }
+      if (this.remove_file) {
+        formData.append("file", "");
+      }
 
       if (this.model.id !== 0) {
         apiEvents
           .updateDetail(this.model.id, formData)
           .then(response => {
             this.RetrieveDetailEvent();
+
+            this.$store.dispatch("showNotification", notification);
           })
           .catch(error => {
             console.log(error);
@@ -244,6 +343,8 @@ export default {
           .createDetail(formData)
           .then(response => {
             this.RetrieveDetailEvent();
+
+            this.$store.dispatch("showNotification", notification);
           })
           .catch(error => {
             console.log(error);

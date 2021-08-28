@@ -19,7 +19,7 @@
           </v-col>
         </v-row>
         <v-row>
-          <v-col cols="12" md="6">
+          <v-col v-if="detail.image1" cols="12" md="6">
             <v-img
               :src="detail.image1"
               height="125"
@@ -27,7 +27,7 @@
             ></v-img>
           </v-col>
 
-          <v-col cols="12" md="6">
+          <v-col v-if="detail.image2" cols="12" md="6">
             <v-img
               :src="detail.image2"
               height="125"
@@ -36,7 +36,7 @@
             ></v-img>
           </v-col>
         </v-row>
-        <v-row justify="center">
+        <v-row v-if="detail.file" justify="center">
           <v-btn class="ma-2" color="blue" :href="detail.file" download rounded>
             Descargar Archivo
           </v-btn>

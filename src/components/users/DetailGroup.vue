@@ -1,11 +1,6 @@
 <template>
   <v-row justify="center">
     <v-dialog :value="dialog" @input="$emit('dialog')" width="600px">
-      <!-- <template v-slot:activator="{ on, attrs }"> @click:outside="close()"
-        <v-btn color="primary" dark v-bind="attrs" v-on="on">
-          Open Dialog
-        </v-btn>
-      </template> -->
       <v-card>
         <v-card-title>
           <span class="text-h5">Grupo: {{ name }}</span>

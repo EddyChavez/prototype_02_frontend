@@ -14,12 +14,14 @@
       <v-card-title>{{ event.name }}</v-card-title>
 
       <v-card-text>
-        <v-chip class="ma-2" color="green" label text-color="white" x-small>
-          {{ event.status }}
-        </v-chip>
+        <div class="text-center">
+          <v-chip class="ma-2" color="green" label text-color="white" x-small>
+            {{ event.status }}
+          </v-chip>
+        </div>
 
         <div class="my-4 text-subtitle-1">
-          <p class="font-weight-black">
+          <p v-if="event.create_by" class="font-weight-black">
             Creado por: {{ event.create_by.get_full_name }}
           </p>
         </div>
@@ -34,7 +36,7 @@
           <v-col cols="12" md="6">
             <div class="text-subtitle-2">
               <v-icon color="grey darken-2"> mdi-calendar </v-icon>
-              {{ event.date_start }}
+              {{ frontEndDateFormat(event.date_start) }}
             </div>
           </v-col>
           <v-col cols="12" md="6">
@@ -76,6 +78,9 @@ export default {
       apiEvents.retrieve(this.idEvent).then(response => {
         this.event = response.data;
       });
+    },
+    frontEndDateFormat: function(date) {
+      return moment(date, "YYYY-MM-DD").format("DD/MM/YYYY");
     }
   }
 };

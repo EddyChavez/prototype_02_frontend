@@ -21,7 +21,12 @@
         </v-row>
       </template>
       <v-card-text>
-        <v-form ref="form" v-model="valid" lazy-validation>
+        <v-form
+          v-if="status == 'EN PROCESO'"
+          ref="form"
+          v-model="valid"
+          lazy-validation
+        >
           <v-row>
             <v-col cols="12" md="3">
               <v-text-field
@@ -69,7 +74,7 @@
           </v-row>
         </v-form>
 
-        <v-row justify="center">
+        <v-row v-if="status == 'EN PROCESO'" justify="center">
           <v-btn
             v-if="showAdd"
             rounded
@@ -140,19 +145,21 @@
                 <td>{{ item.quantity }}</td>
                 <td>$ {{ subTotal(item.quantity, item.price).toFixed(2) }}</td>
                 <td>
-                  <v-icon small @click="EditOrder(item)">
-                    mdi-pencil
-                  </v-icon>
-                  <v-icon small @click="deleteItem(item.id)">
-                    mdi-close
-                  </v-icon>
+                  <div v-if="status == 'EN PROCESO'">
+                    <v-icon small @click="EditOrder(item)">
+                      mdi-pencil
+                    </v-icon>
+                    <v-icon small @click="deleteItem(item.id)">
+                      mdi-close
+                    </v-icon>
+                  </div>
                 </td>
               </tr>
             </tbody>
           </template>
         </v-simple-table>
 
-        <v-row justify="center">
+        <v-row v-if="status == 'EN PROCESO'" justify="center">
           <v-btn class="ma-5" rounded color="primary" dark @click="showOrder()">
             <v-icon left>
               mdi-send
@@ -167,6 +174,7 @@
 
 <script>
 import apiOrders from "@/api/orders/";
+import apiEvents from "@/api/events/";
 
 export default {
   name: "Cart",
@@ -182,7 +190,8 @@ export default {
         quantity: 1
       },
       CartRules: [v => !!v || "Este campo es requerido"],
-      showAdd: true
+      showAdd: true,
+      status: ""
     };
   },
   computed: {
@@ -194,13 +203,18 @@ export default {
     }
   },
   mounted: function() {
+    this.retrieveStatus();
     this.getOrder();
   },
   methods: {
+    retrieveStatus() {
+      apiEvents.getStatus(this.idEvent).then(response => {
+        this.status = response.data.data;
+      });
+    },
     getOrder() {
       apiOrders.byUser(this.idEvent, this.getUser).then(response => {
         this.cart = response.data[0];
-        console.log(response.data[0]);
       });
     },
     subTotal: function(quantity, price) {
@@ -210,7 +224,7 @@ export default {
       if (this.$refs.form.validate()) {
         const formData = new FormData();
 
-        formData.append("order", 6);
+        formData.append("order", this.cart.id);
         formData.append("product", this.order.product);
         formData.append("description", this.order.description);
         formData.append("price", this.order.price);
@@ -256,7 +270,7 @@ export default {
       if (this.$refs.form.validate()) {
         const formData = new FormData();
 
-        formData.append("order", 6);
+        formData.append("order", this.cart.id);
         formData.append("product", this.order.product);
         formData.append("description", this.order.description);
         formData.append("price", this.order.price);

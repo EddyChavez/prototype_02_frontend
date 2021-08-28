@@ -3,11 +3,11 @@
     <v-row justify="center">
       <v-col cols="12" md="9">
         <v-row align="center" justify="space-around">
-          <v-btn rounded color="blue" dark @click="generateReport">
+          <v-btn rounded color="#78909C" dark @click="generateReport">
             <v-icon left>
               mdi-file-pdf-outline
             </v-icon>
-            Descargar
+            Descargar PDF
           </v-btn>
           <v-btn rounded color="#78909C" dark @click="print">
             <v-icon left>
@@ -16,41 +16,86 @@
             Imprimir
           </v-btn>
 
-          <v-btn rounded color="green" dark @click="closeEvent">
+          <v-btn
+            :disabled="disable_delivery"
+            rounded
+            color="blue"
+            dark
+            @click="orderDelivered"
+          >
             <v-icon left>
               mdi-truck-delivery-outline
             </v-icon>
-            LLego pedido
+            LLego Pedido
+            <v-dialog v-model="deliveryDialog" persistent width="350px">
+              <v-card>
+                <v-card-title class="text-h5">
+                  Notificar que el pedido ya esta listo
+                </v-card-title>
+                <v-card-text>
+                  <v-container>
+                    <v-row justify="center">
+                      <div class="text-center">
+                        <v-col cols="12" md="12">
+                          <v-switch
+                            v-model="delivery"
+                            color="success"
+                            value="success"
+                            hide-details
+                          ></v-switch>
+                        </v-col>
+                      </div>
+                    </v-row>
+                  </v-container>
+                </v-card-text>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn
+                    color="green darken-1"
+                    text
+                    @click="deliveryDialog = false"
+                  >
+                    Cancelar
+                  </v-btn>
+                  <v-btn color="green darken-1" text @click="deliveryStatus">
+                    Aceptar
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+          </v-btn>
+
+          <v-btn
+            :disabled="disabled_close"
+            rounded
+            color="red"
+            dark
+            @click="closeEvent"
+          >
+            <v-icon left>
+              mdi-check-outline
+            </v-icon>
+            Evento Pagado
             <v-dialog v-model="closeDialog" persistent width="350px">
               <v-card>
                 <v-card-title class="text-h5">
-                  Cerrar Evento
+                  Concluir Evento
                 </v-card-title>
                 <v-card-text>
-                  <v-form ref="form" v-model="valid" lazy-validation>
-                    <v-container>
-                      <v-row justify="center">
+                  <v-container>
+                    <v-row justify="center">
+                      <div class="text-center">
                         <v-col cols="12" md="12">
-                          <v-text-field
-                            v-model="money"
-                            label="Monto"
-                            class=" purple-input"
-                            prepend-icon="mdi-currency-usd"
-                            :rules="moneyRules"
-                          />
+                          <v-switch
+                            v-model="finish"
+                            color="success"
+                            value="success"
+                            hide-details
+                          ></v-switch>
                         </v-col>
-                        <v-col cols="12" md="12">
-                          <div class="text-center">
-                            <div
-                              class="display-1 float-md-center font-weight-bold"
-                            >
-                              cambio: $ {{ remaining }}
-                            </div>
-                          </div>
-                        </v-col>
-                      </v-row>
-                    </v-container>
-                  </v-form>
+                      </div>
+                    </v-row>
+                  </v-container>
                 </v-card-text>
                 <v-card-actions>
                   <v-spacer></v-spacer>
@@ -61,55 +106,42 @@
                   >
                     Cancelar
                   </v-btn>
-                  <v-btn
-                    color="green darken-1"
-                    text
-                    @click="closeDialog = false"
-                  >
+                  <v-btn color="green darken-1" text @click="closeStatus">
                     Aceptar
                   </v-btn>
                 </v-card-actions>
               </v-card>
             </v-dialog>
           </v-btn>
-
-          <v-btn rounded color="red" dark>
-            <v-icon left>
-              mdi-close-thick
-            </v-icon>
-            Concluir evento
-          </v-btn>
         </v-row>
       </v-col>
-      <v-col cols="12" md="10">
-        <v-sheet elevation="10">
-          <div ref="content">
+
+      <v-col cols="12" md="9">
+        <div ref="content">
+          <v-sheet elevation="10">
             <base-material-card color="primary">
               <template v-slot:heading>
-                <v-row>
+                <!-- <v-row>
                   <v-col cols="12" md="12">
-                    <div class="subtitle-1 font-weight-light">
-                      Se muestran todos los pedidos de cada participante
+                    <div class="display-2 font-weight-light">
+                      Taquiza
                     </div>
                   </v-col>
-                </v-row>
+                </v-row> -->
                 <v-row>
-                  <v-col cols="12" md="4">
-                    <div class="display-2 float-md-center font-weight-bold">
-                      Propina: $ 60.00
-                    </div>
-                  </v-col>
-                  <v-col cols="12" md="4">
-                    <div class="display-2 float-md-center font-weight-bold">
-                      Total: $ {{ total }}
-                    </div>
-                    <div class="display-2 float-md-center font-weight-bold">
-                      Pagado: $ {{ paid_out }}
-                    </div>
-                  </v-col>
-                  <v-col cols="12" md="4">
+                  <v-col cols="12" md="5">
                     <div class="display-2 float-md-center font-weight-bold">
                       Cantidad: {{ count }}
+                    </div>
+                  </v-col>
+                  <v-col cols="12" md="4">
+                    <div class="display-2 float-md-center font-weight-bold">
+                      Pagado: $ {{ parseFloat(paid_out).toFixed(2) }}
+                    </div>
+                  </v-col>
+                  <v-col cols="12" md="3">
+                    <div class="display-2 float-md-center font-weight-bold">
+                      Total: $ {{ parseFloat(total).toFixed(2) }}
                     </div>
                   </v-col>
                 </v-row>
@@ -126,9 +158,29 @@
               >
                 <template v-slot:top>
                   <v-toolbar flat>
-                    <v-toolbar-title>Taquiza</v-toolbar-title>
+                    <div class="display-1 float-md-center font-weight-bold">
+                      Taquiza
+                      <v-chip
+                        class="ma-2"
+                        :color="getColor(status)"
+                        label
+                        text-color="white"
+                        x-small
+                      >
+                        {{ status }}
+                      </v-chip>
+                    </div>
                     <v-spacer></v-spacer>
-                    <v-progress-circular :value="progress_value" color="green">
+                    <v-progress-circular
+                      :value="progress_value"
+                      :size="50"
+                      color="green"
+                    >
+                      <div
+                        class="display-1 float-md-center font-weight-bold text--white"
+                      >
+                        {{ Math.ceil(progress_value) }}%
+                      </div>
                     </v-progress-circular>
                     <v-spacer></v-spacer>
                     <v-switch
@@ -229,16 +281,18 @@
                       <thead>
                         <th>Producto</th>
                         <th>Descripcion</th>
-                        <th>Cantidad</th>
+
                         <th>Precio</th>
+                        <th>Cantidad</th>
                         <th>Subtotal</th>
                       </thead>
                       <tbody>
                         <tr v-for="detail in item.items" v-bind:key="detail.id">
                           <td>{{ detail.product }}</td>
                           <td>{{ detail.description }}</td>
-                          <td class="text-center">{{ detail.quantity }}</td>
+
                           <td class="text-center">$ {{ detail.price }}</td>
+                          <td class="text-center">{{ detail.quantity }}</td>
                           <td class="text-center">
                             $
                             {{
@@ -276,7 +330,18 @@
                   {{ item.quantity }}
                 </template>
                 <template v-slot:item.paid_out="{ item }">
-                  <v-icon
+                  <v-chip
+                    v-if="item.paid_out == false"
+                    color="red"
+                    dark
+                    @click="showPayment(item)"
+                  >
+                    $ {{ item.amount_paid }}
+                  </v-chip>
+                  <v-chip v-else color="green" dark @click="showPayment(item)">
+                    $ {{ item.amount_paid }}
+                  </v-chip>
+                  <!-- <v-icon
                     large
                     v-if="item.paid_out == false"
                     color="red"
@@ -286,15 +351,15 @@
                   </v-icon>
                   <v-icon large v-else color="green" @click="showPayment(item)">
                     mdi-cash-plus
-                  </v-icon>
+                  </v-icon> -->
                 </template>
                 <template v-slot:item.date="{ item }">
                   {{ frontEndDateFormat(item.date) }}
                 </template>
               </v-data-table>
             </base-material-card>
-          </div>
-        </v-sheet>
+          </v-sheet>
+        </div>
       </v-col>
     </v-row>
   </v-container>
@@ -302,6 +367,8 @@
 
 <script>
 import apiOrders from "@/api/orders";
+import apiEvents from "@/api/events";
+
 import moment from "moment";
 import jsPDF from "jspdf";
 import domtoimage from "dom-to-image";
@@ -316,6 +383,11 @@ export default {
       valid: true,
       loading: false,
       dialog: false,
+      disabled_close: false,
+      disable_delivery: false,
+      deliveryDialog: false,
+      finish: false,
+      delivery: false,
       closeDialog: false,
       orderstHeaders: [
         {
@@ -350,7 +422,8 @@ export default {
         v => v > 0 || "Debe ser mayor a 0.00"
       ],
       content: "",
-      progress_value: 0
+      progress_value: 0,
+      status: ""
     };
   },
   watch: {
@@ -364,9 +437,23 @@ export default {
     }
   },
   mounted: function() {
+    this.retrieveStatus();
     this.loadOrder();
   },
   methods: {
+    retrieveStatus() {
+      apiEvents.getStatus(this.idEvent).then(response => {
+        this.status = response.data.data;
+
+        if (this.status == "CONCLUIDO") {
+          this.disable_delivery = true;
+          this.disabled_close = true;
+        }
+        if (this.status == "LLEGO PEDIDO") {
+          this.disable_delivery = true;
+        }
+      });
+    },
     expand: function() {
       if (this.showDetail) {
         this.$data.expanded = this.$data.list_orders;
@@ -416,7 +503,8 @@ export default {
           return paid_out + num;
         }, 0);
 
-        this.progress_value = (this.paid_out * 100) / this.total;
+        if (this.total !== 0)
+          this.progress_value = (this.paid_out * 100) / this.total;
       });
     },
     frontEndDateFormat: function(date) {
@@ -454,7 +542,7 @@ export default {
           format: [612, 792] // tamaño carta
         });
 
-        doc.addImage(img, "PNG", 0, 25);
+        doc.addImage(img, "JPEG", 10, 25);
         const date = new Date();
         const filename = "pedido.pdf";
         doc.save(filename);
@@ -465,6 +553,50 @@ export default {
     },
     closeEvent() {
       this.closeDialog = true;
+    },
+    orderDelivered() {
+      this.deliveryDialog = true;
+    },
+    deliveryStatus() {
+      if (this.delivery == "success") {
+        this.updateStatus("LLEGO PEDIDO");
+
+        this.deliveryDialog = false;
+        this.loadOrder();
+      }
+    },
+    closeStatus() {
+      if (this.finish == "success") {
+        this.updateStatus("CONCLUIDO");
+
+        this.closeDialog = false;
+        this.loadOrder();
+
+        // this.$router.push({
+        //   name: "Eventos"
+        // });
+      }
+    },
+    getColor(status) {
+      switch (status) {
+        case "NUEVO":
+          return "green";
+        case "EN PROCESO":
+          return "orange";
+        case "LLEGO PEDIDO":
+          return "blue";
+        default:
+          return "red";
+      }
+    },
+    updateStatus(status) {
+      let formData = new FormData();
+
+      formData.append("status", status);
+
+      apiEvents.editStatus(this.idEvent, formData).then(response => {
+        console.log(response.data);
+      });
     }
   }
 };

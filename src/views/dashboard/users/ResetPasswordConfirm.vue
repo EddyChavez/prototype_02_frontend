@@ -6,7 +6,7 @@
           <base-material-card>
             <template v-slot:heading>
               <div class="display-2 font-weight-light text-center">
-                Recuperar Contraseña
+                Restaurar Contraseña
               </div>
               <div class="subtitle-1 font-weight-light text-center">
                 <v-icon large>mdi-lock-alert-outline</v-icon>
@@ -15,23 +15,44 @@
 
             <v-form ref="form" v-model="valid" lazy-validation>
               <v-col cols="12" md="12">
-                <div class="d-flex ">
+                <v-col cols="12">
                   <v-text-field
-                    label="Email"
+                    label="Nueva Contraseña"
+                    :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
+                    :type="show1 ? 'text' : 'password'"
                     class=" purple-input"
-                    prepend-icon="mdi-email"
-                    :rules="emailRules"
-                    v-model="email"
+                    prepend-icon="mdi-lock"
+                    :rules="passwordRules"
+                    v-model="password"
+                    @click:append="show1 = !show1"
                   />
-                </div>
+                </v-col>
+
+                <v-col cols="12">
+                  <v-text-field
+                    label="Confirmar Nueva Contraseña"
+                    :append-icon="show2 ? 'mdi-eye' : 'mdi-eye-off'"
+                    :type="show2 ? 'text' : 'password'"
+                    class=" purple-input"
+                    prepend-icon="mdi-lock"
+                    :rules="password2Rules"
+                    v-model="password2"
+                    @click:append="show2 = !show2"
+                  />
+                </v-col>
 
                 <v-alert type="error" v-if="errors.length">
                   <p v-for="error in errors" v-bind:key="error">{{ error }}</p>
                 </v-alert>
 
                 <v-col cols="12" class="text-center">
-                  <v-btn rounded color="success" class="mr-0" @click="reset()">
-                    Solicitar
+                  <v-btn
+                    rounded
+                    color="success"
+                    class="mr-0"
+                    @click="confirm()"
+                  >
+                    Restaurar Contraseña
                   </v-btn>
                 </v-col>
               </v-col>
@@ -47,36 +68,49 @@
 import apiUsers from "@/api/users";
 
 export default {
-  name: "ResetPasswordPage",
+  name: "ResetPasswordConfirm",
   data() {
     return {
       valid: true,
-      email: "",
-      emailRules: [
-        v => !!v || "E-mail es requerido",
-        v => /.+@.+\..+/.test(v) || "E-mail debe ser valido"
+      password: "",
+      password2: "",
+      show1: false,
+      show2: false,
+      passwordRules: [
+        v => !!v || "Este campo es requerido",
+        v => v.length >= 8 || "Minimo 8 caracteres"
+      ],
+      password2Rules: [
+        v => !!v || "Este campo es requerido",
+        v => v === this.password || "Las contraseñas no son iguales"
       ],
       errors: []
     };
   },
+  computed: {
+    token() {
+      return this.$route.params.token;
+    }
+  },
   methods: {
-    reset() {
+    confirm() {
       if (this.$refs.form.validate()) {
         const formData = new FormData();
 
         let notification = {
           snackbar: true,
           direction: "top center",
-          msg: "Se ha enviado un correo para restaurar la contraseña",
+          msg: "Contraseña Restaurada Correctamente",
           color: "info"
         };
 
-        formData.append("email", this.email);
+        formData.append("token", this.token);
+        formData.append("password", this.password);
 
         this.errors = [];
 
         apiUsers
-          .resetPassword(formData)
+          .confirmPassword(formData)
           .then(response => {
             this.$router.push("/login");
 

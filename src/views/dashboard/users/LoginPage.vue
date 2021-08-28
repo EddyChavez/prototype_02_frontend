@@ -2,7 +2,7 @@
   <v-app>
     <v-content class="d-flex align-center">
       <v-row justify="center">
-        <v-col cols="12" md="4">
+        <v-col cols="12" md="4" mx="2">
           <base-material-card>
             <template v-slot:heading>
               <div class="display-2 font-weight-light text-center">
@@ -13,7 +13,7 @@
               </div>
             </template>
 
-            <v-card-text class="text-center">
+            <v-card-text class="text-left">
               <p class="font-weight-light grey--text">
                 Bienvenido!
               </p>
@@ -22,7 +22,7 @@
               <v-col cols="12" md="12">
                 <div class="d-flex ">
                   <v-text-field
-                    label="Email"
+                    label="Email lucero"
                     class=" purple-input"
                     prepend-icon="mdi-email"
                     :rules="emailRules"
@@ -47,12 +47,7 @@
                 </v-alert>
 
                 <v-col cols="12" class="text-center">
-                  <v-btn
-                    rounded
-                    color="success"
-                    class="mr-0"
-                    @click="LoginUser()"
-                  >
+                  <v-btn color="success" class="mr-0" @click="LoginUser()">
                     Iniciar Sesion
                   </v-btn>
                 </v-col>
@@ -96,6 +91,7 @@
           </base-material-card>
         </v-col>
       </v-row>
+      <alerts />
     </v-content>
   </v-app>
 </template>
@@ -104,9 +100,13 @@
 import apiUsers from "@/api/users";
 import { setTokenApi, getTokenApi } from "@/api/token";
 import { mapActions } from "vuex";
+import Alerts from "@/components/base/Alerts.vue";
 
 export default {
   name: "LoginPage",
+  components: {
+    Alerts
+  },
   data() {
     return {
       valid: true,
