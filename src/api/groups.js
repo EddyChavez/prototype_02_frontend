@@ -74,6 +74,13 @@ const apiGroups = {
         Authorization: `Token ${getTokenApi()}`
       }
     });
+  },
+  sendEmailDelivered: function(formData) {
+    return axios.post(`${API_URL}/api/tribes/delivered/`, formData, {
+      headers: {
+        Authorization: `Token ${getTokenApi()}`
+      }
+    });
   }
 };
 
