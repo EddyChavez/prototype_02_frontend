@@ -22,7 +22,7 @@
               <v-col cols="12" md="12">
                 <div class="d-flex ">
                   <v-text-field
-                    label="Email lucero"
+                    label="Email"
                     class=" purple-input"
                     prepend-icon="mdi-email"
                     :rules="emailRules"
@@ -47,7 +47,7 @@
                 </v-alert>
 
                 <v-col cols="12" class="text-center">
-                  <v-btn color="success" class="mr-0" @click="LoginUser()">
+                  <v-btn color="success" rounded class="mr-0" @click="LoginUser()">
                     Iniciar Sesion
                   </v-btn>
                 </v-col>
