@@ -164,6 +164,7 @@ export default {
         .retrieve()
         .then(response => {
           this.$store.dispatch("retrieveUser", response.data);
+          sessionStorage.setItem('IdUser', response.data.id);
         })
         .catch(error => {
           this.closeSession();

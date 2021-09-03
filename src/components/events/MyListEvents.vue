@@ -329,6 +329,7 @@ export default {
       this.imageSelected = this.editedItem.image;
     },
     editItem(item) {
+      if(sessionStorage.getItem('IdUser') == this.list_events.find(e => e.id === idEvent).create_by.id){
       this.editedIndex = this.events.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.dialog = true;

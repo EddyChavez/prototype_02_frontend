@@ -162,10 +162,12 @@ export default {
       });
     },
     showDetailPanel: function(idEvent) {
-      this.$router.push({
+      if(sessionStorage.getItem('IdUser') == this.list_events.find(e => e.id === idEvent).create_by.id){
+        this.$router.push({
         name: "Detalle del Evento",
         params: { id: idEvent }
       });
+      }      
     },
     getColor(status) {
       switch (status) {
