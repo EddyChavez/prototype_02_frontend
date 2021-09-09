@@ -580,43 +580,42 @@ export default {
       this.list_users.forEach(item => {
         formData.append("listEmails", item.email);
       });
-      apiGroups
-        .sendEmailDelivered(formData)
-        .then(response => {
-          this.dialogDelete = false;
+        apiGroups
+          .sendEmailDelivered(formData)
+          .then(response => {
+            this.dialogDelete = false;
 
-          let notification = {
-            snackbar: true,
-            direction: "top center",
-            msg: response.data.message,
-            important: "",
-            color: "success"
-          };
-          this.$store.dispatch("showNotification", notification);
+            let notification = {
+              snackbar: true,
+              direction: "top center",
+              msg: response.data.message,
+              important: "",
+              color: "success"
+            };
+            this.$store.dispatch("showNotification", notification);
 
-          this.loading = true;
-          setTimeout(() => (this.loading = false), 3000);
+            this.loading = true;
+            setTimeout(() => (this.loading = false), 3000);
 
-          setTimeout(() => (this.redirect = true), 3000);
+            setTimeout(() => (this.redirect = true), 3000);
 
-          if (this.redirect) {
-            this.$router.push({
-              name: "Eventos"
-            });
-          }
-        })
-        .catch(error => {
-          let notification = {
-            snackbar: true,
-            direction: "top center",
-            msg: error,
-            important: "",
-            color: "error"
-          };
-          this.$store.dispatch("showNotification", notification);
-          this.dialogDelete = false;
-        });
-        //
+            if (this.redirect) {
+              this.$router.push({
+                name: "Eventos"
+              });
+            }
+          })
+          .catch(error => {
+            let notification = {
+              snackbar: true,
+              direction: "top center",
+              msg: error,
+              important: "",
+              color: "error"
+            };
+            this.$store.dispatch("showNotification", notification);
+            this.dialogDelete = false;
+          });        
       }
     },
     closeStatus() {

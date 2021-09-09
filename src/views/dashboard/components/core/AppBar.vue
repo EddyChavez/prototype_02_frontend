@@ -165,6 +165,7 @@ export default {
         .then(response => {
           this.$store.dispatch("retrieveUser", response.data);
           sessionStorage.setItem('IdUser', response.data.id);
+          sessionStorage.setItem('EmailUser', response.data.email);
         })
         .catch(error => {
           this.closeSession();

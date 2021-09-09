@@ -136,6 +136,11 @@ export default new Router({
           name: "Donate",
           path: "donate",
           component: () => import("@/views/dashboard/contact/Donate")
+        },
+        {
+          name: "Thanks",
+          path: "Thanks/:email",
+          component: () => import("@/views/dashboard/Thanks")
         }
       ]
     }

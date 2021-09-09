@@ -132,7 +132,7 @@ export default {
           }
         ],
         back_urls: {
-          success: "http://localhost:8080",
+          success: "http://localhost:8080/#/thanks/"+sessionStorage.getItem('EmailUser'),
           failure: "http://localhost:8080",
           pending: "http://localhost:8080"
         },

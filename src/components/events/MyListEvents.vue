@@ -122,9 +122,7 @@
                             small
                             @click="removeImage()"
                           >
-                            <v-icon small>
-                              mdi-close
-                            </v-icon>
+                            <v-icon small> mdi-close </v-icon>
                           </v-btn>
                         </v-row>
 
@@ -170,13 +168,33 @@
               </v-card-actions>
             </v-card>
           </v-dialog>
+          <v-dialog v-model="aviso" max-width="300px">
+            <v-card elevation="24">
+              <v-card-title class="text-h5">Aviso</v-card-title>
+              <v-card-text align="center" justify="center">¡No puedes realizar esta acción!</v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+
+                <!-- <v-btn color="blue darken-1" text @click="closeDelete"
+                  >Cancel</v-btn
+                > -->
+                <v-btn color="blue darken-1" text @click="closeAviso()"
+                  >OK</v-btn
+                >
+                <v-spacer></v-spacer>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
         </v-toolbar>
       </template>
       <template v-slot:item.name="{ item }">
-        <router-link
+        <!-- <router-link
           :to="{ name: 'Administrar Evento', params: { id: item.id } }"
-          >{{ item.name }}</router-link
-        >
+          >{{ item.name }}
+        </router-link> -->
+        <v-icon size="30" @click="editEvent(item)">
+          mdi-clipboard-edit-outline
+        </v-icon>
       </template>
       <template v-slot:item.status="{ item }">
         <v-chip :color="getColor(item.status)" dark>
@@ -187,17 +205,13 @@
         {{ frontEndDateFormat(item.date_start) }}
       </template>
       <template v-slot:item.image="{ item }">
-        <v-avatar size="56">
+        <v-avatar size="40">
           <img alt="user" :src="item.image" />
         </v-avatar>
       </template>
       <template v-slot:item.actions="{ item }">
-        <v-icon @click="editItem(item)">
-          mdi-pencil
-        </v-icon>
-        <v-icon @click="deleteItem(item)">
-          mdi-close
-        </v-icon>
+        <v-icon @click="editItem(item)"> mdi-pencil </v-icon>
+        <v-icon @click="deleteItem(item)"> mdi-close </v-icon>
         <!-- <v-btn
           class="mr-2"
           outlined
@@ -243,10 +257,11 @@ import Alerts from "@/components/base/Alerts.vue";
 export default {
   name: "MyListEvents",
   components: {
-    Alerts
+    Alerts,
   },
   data() {
     return {
+      aviso: false,
       valid: true,
       dialog: false,
       dialogDelete: false,
@@ -255,14 +270,14 @@ export default {
           text: "Nombre",
           align: "start",
           sortable: false,
-          value: "name"
+          value: "name",
         },
         { text: "Descripcion", value: "description" },
         { text: "Fecha Inicio", value: "date_start" },
         { text: "Hora Inicio", value: "hour_start" },
         { text: "Estatus", value: "status" },
         { text: "Imagen", value: "image", sortable: false },
-        { text: "Acciones", value: "actions", sortable: false }
+        { text: "Acciones", value: "actions", sortable: false },
       ],
       events: [],
       editedIndex: -1,
@@ -273,7 +288,7 @@ export default {
         hour_start: "",
         status: "NUEVO",
         create_by: "",
-        image: null
+        image: null,
       },
       defaultItem: {
         name: "",
@@ -282,7 +297,7 @@ export default {
         hour_start: "",
         status: "NUEVO",
         create_by: "",
-        image: null
+        image: null,
       },
       imageSelected: null,
       remove_image: false,
@@ -291,10 +306,10 @@ export default {
       menu1: false,
       menu2: false,
       time: null,
-      NameRules: [v => !!v || "Este campo es requerido"],
-      DateRules: [v => !!v || "Este campo es requerido"],
-      TimeRules: [v => !!v || "Este campo es requerido"],
-      DescriptionRules: [v => !!v || "Este campo es requerido"]
+      NameRules: [(v) => !!v || "Este campo es requerido"],
+      DateRules: [(v) => !!v || "Este campo es requerido"],
+      TimeRules: [(v) => !!v || "Este campo es requerido"],
+      DescriptionRules: [(v) => !!v || "Este campo es requerido"],
     };
   },
   computed: {
@@ -303,7 +318,7 @@ export default {
     },
     formTitle() {
       return this.editedIndex === -1 ? "Nuevo Evento" : "Editar Evento";
-    }
+    },
   },
   watch: {
     dialog(val) {
@@ -311,14 +326,14 @@ export default {
     },
     dialogDelete(val) {
       val || this.closeDelete();
-    }
+    },
   },
   created() {
     this.initialize();
   },
   methods: {
     initialize() {
-      apiEvents.byUser(this.getUser).then(response => {
+      apiEvents.byUser(this.getUser).then((response) => {
         this.events = response.data;
       });
     },
@@ -328,12 +343,41 @@ export default {
     getImage() {
       this.imageSelected = this.editedItem.image;
     },
+    editEvent(item) {
+      let flag = false;
+      apiEvents
+        .validate_permission(item.id, this.getUser)
+        .then((response) => {
+          flag = response.data.data;
+          if (flag === false) {
+            //console.log("No tienes permiso para editar este evento!");
+            this.aviso = true;
+            this.$router.push({
+              name: "Mis Eventos",
+            });
+          } else {
+            this.$router.push({
+              name: "Administrar Evento",
+              params: { id: item.id },
+            });
+          }
+        })
+        .catch((error) => {
+          flag = false;
+        });
+
+      /* if (sessionStorage.getItem("IdUser") == item.create_by.id) {
+        this.$router.push({
+          name: "Administrar Evento",
+          params: { id: item.id },
+        });
+      } else {
+      } */
+    },
     editItem(item) {
-      if(sessionStorage.getItem('IdUser') == this.list_events.find(e => e.id === idEvent).create_by.id){
       this.editedIndex = this.events.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.dialog = true;
-
       this.getImage();
     },
     deleteItem(item) {
@@ -348,15 +392,15 @@ export default {
         snackbar: true,
         direction: "top center",
         msg: "Evento Eliminado Exitosamente!",
-        color: "success"
+        color: "success",
       };
 
       apiEvents
         .delete(idEvent)
-        .then(response => {
+        .then((response) => {
           this.$store.dispatch("showNotification", notification);
         })
-        .catch(error => {
+        .catch((error) => {
           console.log(error);
         });
 
@@ -386,6 +430,9 @@ export default {
         this.editedIndex = -1;
       });
     },
+    closeAviso() {
+      this.aviso = false;
+    },
 
     save() {
       if (this.editedIndex > -1) {
@@ -400,7 +447,7 @@ export default {
             snackbar: true,
             direction: "top center",
             msg: "Evento Actualizado Exitosamente!",
-            color: "success"
+            color: "success",
           };
 
           formDataEdit.append("name", this.editedItem.name);
@@ -419,12 +466,12 @@ export default {
 
           apiEvents
             .update(idEvent, formDataEdit)
-            .then(response => {
+            .then((response) => {
               this.initialize();
 
               this.$store.dispatch("showNotification", notification);
             })
-            .catch(error => {
+            .catch((error) => {
               console.log(error);
             });
 
@@ -450,17 +497,17 @@ export default {
             snackbar: true,
             direction: "top center",
             msg: "Evento Creado Exitosamente!",
-            color: "success"
+            color: "success",
           };
 
           apiEvents
             .create(formData)
-            .then(response => {
+            .then((response) => {
               this.events.push(response.data);
 
               this.$store.dispatch("showNotification", notification);
             })
-            .catch(error => {
+            .catch((error) => {
               console.log(error);
             });
 
@@ -480,10 +527,10 @@ export default {
           return "red";
       }
     },
-    frontEndDateFormat: function(date) {
+    frontEndDateFormat: function (date) {
       return moment(date, "YYYY-MM-DD").format("DD/MM/YYYY");
-    }
-  }
+    },
+  },
 };
 </script>
 
