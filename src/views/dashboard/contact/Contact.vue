@@ -80,6 +80,7 @@
 
 <script>
 import Alerts from "@/components/base/Alerts.vue";
+import apiContact from "@/api/contact/";
 
 export default {
   name: "Contact",
@@ -115,7 +116,19 @@ export default {
           color: "info"
         };
 
-        this.$store.dispatch("showNotification", notification);
+        const formData = new FormData();
+        formData.append("contact", this.contact);
+        formData.append("email", this.email);
+        formData.append("message", this.message);
+
+        apiContact
+          .emailContact(formData)
+          .then(response => {
+            this.$store.dispatch("showNotification", notification);
+          })
+          .catch(error => {
+            console.log(error);
+          });
 
         this.$refs.form.reset();
       }

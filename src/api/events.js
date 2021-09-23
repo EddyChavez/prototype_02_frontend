@@ -24,8 +24,8 @@ const apiEvents = {
       }
     });
   },
-  validate_permission(idEvent, idUser) {
-    return axios.get(`${API_URL}/api/events/validate/${idEvent}/${idUser}/`, {
+  validate_permission(idEvent) {
+    return axios.get(`${API_URL}/api/events/validate/${idEvent}/`, {
       headers: {
         Authorization: `Token ${getTokenApi()}`
       }
@@ -56,8 +56,8 @@ const apiEvents = {
       }
     );
   },
-  byUser: function(idUser) {
-    return axios.get(`${API_URL}/api/events/by-user/${idUser}/`, {
+  byUser: function() {
+    return axios.get(`${API_URL}/api/events/by-user/`, {
       headers: {
         Authorization: `Token ${getTokenApi()}`
       }

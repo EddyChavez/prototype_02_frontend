@@ -98,103 +98,27 @@
                     </v-col>
                     <v-col cols="12" md="8" class="text-center">
                       <v-chip
-                        v-for="user in members"
-                        :key="user.email"
+                        v-for="item in members"
+                        :key="item.email"
                         close
-                        @click:close="remove(user)"
+                        @click:close="remove(item)"
                       >
-                        <v-avatar left v-if="user.avatar">
-                          <v-img :src="user.avatar"></v-img>
+                        <v-avatar left v-if="item.avatar">
+                          <v-img :src="item.avatar"></v-img>
                         </v-avatar>
                         <v-avatar color="indigo" left v-else>
                           <span class="white--text text-h5">{{
-                            user.get_initials
+                            item.get_initials
                           }}</span>
                         </v-avatar>
-                        <span v-if="user.get_initials">{{
-                          user.get_full_name
+                        <span v-if="item.get_initials">{{
+                          item.get_full_name
                         }}</span>
-                        <span v-else>{{ user.email }}</span>
+                        <span v-else>{{ item.email }}</span>
                       </v-chip>
                     </v-col>
                   </v-row>
                 </v-card>
-              </v-col>
-              <v-col cols="12" md="6" class="text-center">
-                <!-- <v-text-field
-                  label="Buscar"
-                  class=" purple-input"
-                  prepend-icon="mdi-account-circle-outline"
-                  v-model="kword"
-                >
-                </v-text-field>
-
-                <v-list-item v-for="user in users" :key="user.id">
-                  <v-list-item-avatar>
-                    <v-img
-                      v-if="user.avatar"
-                      :alt="`${user.get_full_name} avatar`"
-                      :src="user.avatar"
-                    ></v-img>
-                    <v-avatar color="red" v-else>
-                      <span class="white--text text-h5">{{
-                        user.get_initials
-                      }}</span>
-                    </v-avatar>
-                  </v-list-item-avatar>
-
-                  <v-list-item-content @click="addMembers(user)">
-                    <v-list-item-title
-                      v-text="user.get_full_name"
-                    ></v-list-item-title>
-                    <v-list-item-subtitle
-                      v-text="user.email"
-                    ></v-list-item-subtitle>
-                  </v-list-item-content>
-                </v-list-item> -->
-
-                <!-- <v-chip
-                  v-for="user in members"
-                  :key="user.email"
-                  close
-                  @click:close="remove(user)"
-                >
-                  <v-avatar left v-if="user.avatar">
-                    <v-img :src="user.avatar"></v-img>
-                  </v-avatar>
-                  <v-avatar color="red" left v-else>
-                    <span class="white--text text-h5">{{
-                      user.get_initials
-                    }}</span>
-                  </v-avatar>
-                  {{ user.get_full_name }}
-                </v-chip> -->
-
-                <!-- <v-list dense>
-                  <v-list-item v-for="user in users" :key="user.id">
-                    <v-list-item-avatar>
-                      <v-img
-                        v-if="user.avatar"
-                        :alt="`${user.get_full_name} avatar`"
-                        :src="user.avatar"
-                      ></v-img>
-                      <v-avatar color="red" v-else>
-                        <span class="white--text text-h5">{{
-                          user.get_initials
-                        }}</span>
-                      </v-avatar>
-                    </v-list-item-avatar>
-
-                    <v-list-item-content @click="addMembers(user)">
-                      <v-list-item-title
-                        v-text="user.get_full_name"
-                      ></v-list-item-title>
-                      <v-list-item-subtitle
-                        v-text="user.email"
-                      ></v-list-item-subtitle>
-                    </v-list-item-content>
-                  </v-list-item>
-                </v-list> -->
               </v-col>
             </v-row>
           </v-form>
@@ -268,82 +192,133 @@
                   <v-icon @click="EditGroup(group)">
                     mdi-pencil
                   </v-icon>
-                  <!-- <v-icon small @click="deleteItem(group.id)">
-                    mdi-close
-                  </v-icon> -->
+                </v-list-item-action>
+                <v-list-item-action>
+                  <v-icon @click="AssignPermission(group)">
+                    mdi-shield-account
+                  </v-icon>
                 </v-list-item-action>
               </v-list-item>
             </v-list-item-group>
           </v-list>
         </v-card-text>
-        <!-- 
-        <v-card>
-          <v-card-title>
-            Grupos
-            <v-spacer></v-spacer>
-            <v-text-field
-              v-model="search"
-              append-icon="mdi-magnify"
-              label="Buscar"
-              single-line
-              hide-details
-            ></v-text-field>
-          </v-card-title>
-          <v-data-table :headers="headers" :items="groups" :search="search">
-            <template v-slot:item.avatar="{ item }">
-              <v-avatar size="56">
-                <img alt="user" :src="item.avatar" />
-              </v-avatar>
-            </template>
-            <template v-slot:item.actions="{ item }">
-              <v-icon small @click="EditGroup(item)">
-                mdi-pencil
-              </v-icon>
-              <v-icon small @click="deleteItem(item.id)">
-                mdi-close
-              </v-icon>
-            </template>
-            <template v-slot:top>
-              <v-dialog v-model="dialogDelete" max-width="500px">
-                <v-card>
-                  <v-card-title class="text-h5"
-                    >Seguro que deseas borrar este Grupo?</v-card-title
-                  >
-                  <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="blue darken-1" text @click="closeDelete"
-                      >Cancel</v-btn
+
+        <v-dialog
+          v-model="dialog"
+          @click:outside="dialog = false"
+          width="550px"
+        >
+          <v-card>
+            <v-container>
+              <v-card-title>
+                <v-row>
+                  <v-col cols="12" class="text-center">
+                    Asignar permisos de Administrador
+                  </v-col>
+                  <v-col cols="12" md="6">
+                    <v-avatar left v-if="detail.avatar">
+                      <v-img :src="detail.avatar"></v-img>
+                    </v-avatar>
+                    <v-avatar left v-else>
+                      <v-img src="@/assets/groups.jpg"></v-img>
+                    </v-avatar>
+                    <span class="text-h5">
+                      <strong>Grupo: </strong>{{ detail.name }}</span
                     >
-                    <v-btn color="blue darken-1" text @click="deleteItemConfirm"
-                      >OK</v-btn
-                    >
-                    <v-spacer></v-spacer>
-                  </v-card-actions>
-                </v-card>
-              </v-dialog> </template
-          ></v-data-table>
-        </v-card> -->
+                  </v-col>
+                  <v-col v-if="detail.user" cols="12" md="6">
+                    <v-chip class="ma-2">
+                      Creado por: {{ detail.user.get_full_name }}
+                    </v-chip>
+                  </v-col>
+                </v-row>
+              </v-card-title>
+              <v-card-text>
+                <v-col cols="12" class="text-center">
+                  <h4>
+                    <strong>Participantes ({{ detail.sum_members }})</strong>
+                  </h4>
+                </v-col>
+              </v-card-text>
+              <v-card-text class="text-center">
+                <v-virtual-scroll
+                  :items="list_members"
+                  height="200"
+                  item-height="60"
+                >
+                  <template v-slot:default="{ item }">
+                    <v-list dense>
+                      <v-list-item :key="item.id">
+                        <v-list-item-avatar>
+                          <v-avatar left v-if="item.user.avatar">
+                            <v-img :src="item.user.avatar"></v-img>
+                          </v-avatar>
+                          <v-avatar color="indigo" v-else>
+                            <span
+                              v-if="item.user.get_initials"
+                              class="white--text text-h5"
+                              >{{ item.user.get_initials }}</span
+                            >
+                            <v-img v-else src="@/assets/user_group.png"></v-img>
+                          </v-avatar>
+                        </v-list-item-avatar>
+                        <v-list-item-content>
+                          <v-list-item-title
+                            v-text="item.user.get_full_name"
+                          ></v-list-item-title>
+                          <v-list-item-subtitle v-text="item.user.email">
+                          </v-list-item-subtitle>
+                        </v-list-item-content>
+                        <v-list-item-icon>
+                          <v-list-item>
+                            <v-switch
+                              v-model="item.is_admin"
+                              label="Admin"
+                              color="success"
+                              :value="item.is_admin"
+                              hide-details
+                            ></v-switch>
+                          </v-list-item>
+                        </v-list-item-icon>
+                      </v-list-item>
+                    </v-list>
+                  </template>
+                </v-virtual-scroll>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+
+                <v-btn color="green darken-1" text @click="dialog = false">
+                  Cerrar
+                </v-btn>
+                <v-btn
+                  color="green darken-1"
+                  text
+                  @click="savePermissions(detail.id)"
+                >
+                  Guardar
+                </v-btn>
+              </v-card-actions>
+            </v-container>
+          </v-card>
+        </v-dialog>
       </base-material-card>
     </v-col>
     <v-col cols="12" md="4">
       <my-groups />
     </v-col>
-
-    <alerts />
   </v-row>
 </template>
 
 <script>
 import apiGroups from "@/api/groups/";
 import MyGroups from "@/components/users/MyGroups.vue";
-import Alerts from "@/components/base/Alerts.vue";
 import Participants from "@/components/events/Participants.vue";
 
 export default {
   name: "Groups",
   components: {
-    MyGroups,
-    Alerts
+    MyGroups
   },
   data() {
     return {
@@ -359,6 +334,7 @@ export default {
       kword: "",
       members: [],
       users: [],
+      list_members: [],
       selectedItem: 1,
       search: "",
       isUpdating: false,
@@ -387,10 +363,14 @@ export default {
       },
       newAvatarGroup: null,
       CurrentAvatar: null,
-      idGroup: 0
+      idGroup: 0,
+      dialog: false,
+      detail: [],
+      is_admin: false
     };
   },
-  mounted() {
+
+  created() {
     this.RetrieveGroups();
   },
   computed: {
@@ -453,7 +433,7 @@ export default {
       }
     },
     RetrieveGroups() {
-      apiGroups.byUser(this.getUser).then(response => {
+      apiGroups.byUser().then(response => {
         this.groups = response.data;
       });
     },
@@ -506,6 +486,48 @@ export default {
         this.$refs.form.resetValidation();
       }
     },
+    AssignPermission(group) {
+      this.dialog = true;
+      this.detail = group;
+
+      console.log(this.detail);
+
+      apiGroups
+        .getMembers(group.id)
+        .then(response => {
+          this.list_members = response.data[0].members;
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
+    savePermissions(group) {
+      this.dialog = false;
+
+      let notification = {
+        snackbar: true,
+        direction: "top center",
+        msg: "Permisos Guardados Exitosamente!",
+        color: "success"
+      };
+
+      const formData = new FormData();
+
+      this.list_members.forEach(element => {
+        if (element.is_admin) {
+          formData.append("members", element.user.id);
+        }
+      });
+
+      apiGroups
+        .assignPermissions(group, formData)
+        .then(response => {
+          this.$store.dispatch("showNotification", notification);
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
     clearData() {
       this.group.id = 0;
       this.group.name = "";
@@ -528,10 +550,11 @@ export default {
       apiGroups
         .getMembers(item.id)
         .then(response => {
-          this.members = response.data[0].members;
+          let data = response.data[0].members;
 
-          this.members.forEach(element => {
-            this.group.members.push(element.id);
+          data.forEach(element => {
+            this.members.push(element.user);
+            this.group.members.push(element.user.id);
           });
 
           this.count_participants = this.group.members.length;

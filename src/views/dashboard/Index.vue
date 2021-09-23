@@ -1,5 +1,7 @@
 <template>
   <v-app>
+    <alerts />
+
     <dashboard-core-app-bar />
 
     <dashboard-core-drawer />
@@ -11,16 +13,17 @@
 </template>
 
 <script>
-export default {
-  name: "DashboardIndex",
+import apiUsers from "@/api/users";
 
+export default {
+  name: "Index",
   components: {
     DashboardCoreAppBar: () => import("./components/core/AppBar"),
     DashboardCoreDrawer: () => import("./components/core/Drawer"),
     DashboardCoreSettings: () => import("./components/core/Settings"),
-    DashboardCoreView: () => import("./components/core/View")
+    DashboardCoreView: () => import("./components/core/View"),
+    Alerts: () => import("@/components/base/Alerts")
   },
-
   data: () => ({
     expandOnHover: false
   })

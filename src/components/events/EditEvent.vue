@@ -176,7 +176,7 @@
           </v-btn>
         </v-col>
       </v-row>
-      <alerts />
+      <!-- <alerts /> -->
     </v-container>
   </base-material-card>
 </template>
@@ -188,14 +188,14 @@ import { VueEditor, Quill } from "vue2-editor";
 import { ImageDrop } from "quill-image-drop-module";
 import ImageResize from "quill-image-resize-module";
 import apiEvents from "@/api/events/";
-import Alerts from "@/components/base/Alerts.vue";
+//import Alerts from "@/components/base/Alerts.vue";
 
 Quill.register("modules/imageDrop", ImageDrop);
 Quill.register("modules/imageResize", ImageResize);
 
 export default {
   name: "EditEvent",
-  components: { VueEditor, Alerts },
+  components: { VueEditor },
   data() {
     return {
       loading: false,

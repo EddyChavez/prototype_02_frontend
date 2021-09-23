@@ -31,7 +31,19 @@
               ></v-progress-linear>
             </template>
 
-            <v-img max-height="150" height="250" :src="event.image"></v-img>
+            <v-img
+              v-if="event.image"
+              max-height="150"
+              height="250"
+              :src="event.image"
+            ></v-img>
+            <v-img
+              v-else
+              max-height="150"
+              height="250"
+              alt="user"
+              src="@/assets/events2.jpg"
+            ></v-img>
 
             <v-card-title>{{ event.name }}</v-card-title>
 
@@ -42,6 +54,7 @@
                   :color="getColor(event.status)"
                   label
                   text-color="white"
+                  small
                 >
                   {{ event.status }}
                 </v-chip>

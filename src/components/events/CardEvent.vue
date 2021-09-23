@@ -9,13 +9,31 @@
         ></v-progress-linear>
       </template>
 
-      <v-img max-height="150" height="250" :src="event.image"></v-img>
+      <v-img
+        v-if="event.image"
+        max-height="150"
+        height="250"
+        :src="event.image"
+      ></v-img>
+      <v-img
+        v-else
+        max-height="150"
+        height="250"
+        alt="user"
+        src="@/assets/events2.jpg"
+      ></v-img>
 
       <v-card-title>{{ event.name }}</v-card-title>
 
       <v-card-text>
         <div class="text-center">
-          <v-chip class="ma-2" color="green" label text-color="white" x-small>
+          <v-chip
+            class="ma-2"
+            :color="getColor(event.status)"
+            label
+            text-color="white"
+            small
+          >
             {{ event.status }}
           </v-chip>
         </div>
@@ -81,6 +99,16 @@ export default {
     },
     frontEndDateFormat: function(date) {
       return moment(date, "YYYY-MM-DD").format("DD/MM/YYYY");
+    },
+    getColor(status) {
+      switch (status) {
+        case "EN PROCESO":
+          return "orange";
+        case "LLEGO PEDIDO":
+          return "blue";
+        default:
+          return "red";
+      }
     }
   }
 };

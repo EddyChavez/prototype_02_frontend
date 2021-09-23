@@ -128,6 +128,11 @@ export default new Router({
 
         // Upgrade
         {
+          name: "Tutorial",
+          path: "tutorial",
+          component: () => import("@/views/dashboard/contact/Tutorial")
+        },
+        {
           name: "Contacto",
           path: "contact",
           component: () => import("@/views/dashboard/contact/Contact")
