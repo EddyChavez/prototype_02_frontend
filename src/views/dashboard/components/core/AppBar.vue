@@ -162,7 +162,7 @@ export default {
           this.getUser = response.data;
         })
         .catch(error => {
-          this.$router.push("/login");
+          this.closeSession();
         });
     } else {
       this.getUser = user;

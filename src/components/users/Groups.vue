@@ -1,325 +1,308 @@
 <template>
-  <v-row justify="center">
-    <v-col cols="12" md="8">
-      <base-material-card color="blue" :loading="isUpdating">
-        <template v-slot:heading>
-          <div class="display-2 font-weight-light">
-            Crea grupos para gestionar mas rapidamente tu evento
-          </div>
-        </template>
+  <base-material-card color="blue" :loading="isUpdating">
+    <template v-slot:heading>
+      <div class="display-2 font-weight-light">
+        Crea grupos para gestionar mas rapidamente tu evento
+      </div>
+    </template>
 
-        <v-card-text>
-          <v-form ref="form" v-model="valid" lazy-validation>
+    <v-card-text>
+      <v-form ref="form" v-model="valid" lazy-validation>
+        <v-row>
+          <v-col cols="12">
+            <v-autocomplete
+              v-model="model"
+              :items="items"
+              :filter="customFilter"
+              :search-input.sync="search2"
+              hide-details
+              hide-selected
+              item-text="email"
+              label="Buscar participantes"
+              solo
+              prepend-icon="mdi-account-circle-outline"
+              @change="reset"
+            >
+              <template v-slot:item="{ item }">
+                <v-list-item-avatar>
+                  <v-img
+                    v-if="item.avatar"
+                    :alt="`${item.get_full_name} avatar`"
+                    :src="item.avatar"
+                  ></v-img>
+                  <v-avatar color="indigo" v-else>
+                    <span class="white--text text-h5">{{
+                      item.get_initials
+                    }}</span>
+                  </v-avatar>
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title
+                    v-text="item.get_full_name"
+                  ></v-list-item-title>
+                  <v-list-item-subtitle
+                    v-text="item.email"
+                  ></v-list-item-subtitle>
+                </v-list-item-content>
+              </template>
+            </v-autocomplete>
+          </v-col>
+          <v-col cols="12" md="5">
+            <v-text-field
+              label="Nombre"
+              class="purple-input"
+              prepend-icon="mdi-account-group"
+              v-model="group.name"
+              :rules="GroupRules"
+            />
+          </v-col>
+
+          <v-col cols="12" md="7">
+            <v-text-field
+              label="Descripcion"
+              class=" purple-input"
+              prepend-icon="mdi-notebook-outline"
+              v-model="group.description"
+            ></v-text-field>
+          </v-col>
+
+          <v-row justify="center">
+            <v-avatar v-if="CurrentAvatar" size="60">
+              <img alt="user" :src="CurrentAvatar" />
+            </v-avatar>
+            <v-avatar v-else size="60">
+              <img alt="user" src="@/assets/groups.jpg" />
+            </v-avatar>
+            <v-col cols="12" md="5">
+              <v-file-input
+                accept="image/*"
+                label="Logo"
+                v-model="newAvatarGroup"
+                @change="onFileSelected()"
+              ></v-file-input>
+            </v-col>
+          </v-row>
+        </v-row>
+        <v-row justify="center">
+          <v-col cols="12">
+            <v-card color="#FAFAFA" dense>
+              <v-row justify="center">
+                <v-col cols="12" md="8" class="text-center">
+                  <h4>
+                    <strong>Participantes ({{ count_participants }})</strong>
+                  </h4>
+                </v-col>
+                <v-col cols="12" md="8" class="text-center">
+                  <v-chip
+                    v-for="item in members"
+                    :key="item.email"
+                    close
+                    @click:close="remove(item)"
+                  >
+                    <v-avatar left v-if="item.avatar">
+                      <v-img :src="item.avatar"></v-img>
+                    </v-avatar>
+                    <v-avatar color="indigo" left v-else>
+                      <span class="white--text text-h5">{{
+                        item.get_initials
+                      }}</span>
+                    </v-avatar>
+                    <span v-if="item.get_initials">{{
+                      item.get_full_name
+                    }}</span>
+                    <span v-else>{{ item.email }}</span>
+                  </v-chip>
+                </v-col>
+              </v-row>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-form>
+
+      <v-row justify="center">
+        <v-btn
+          :loading="isUpdating"
+          rounded
+          color="blue"
+          dark
+          @click="addGroup()"
+          v-if="showAdd"
+        >
+          <v-icon>
+            mdi-plus
+          </v-icon>
+          Agregar
+        </v-btn>
+        <v-btn
+          v-if="!showAdd"
+          :loading="isUpdating"
+          rounded
+          color="blue"
+          dark
+          @click="saveGroup(group.id)"
+        >
+          <v-icon>
+            mdi-content-save-outline
+          </v-icon>
+          Guardar
+        </v-btn>
+        <v-btn
+          v-if="!showAdd"
+          class="mr-2"
+          outlined
+          color="red"
+          fab
+          small
+          @click="cancel()"
+        >
+          <v-icon small>
+            mdi-close
+          </v-icon>
+        </v-btn>
+      </v-row>
+    </v-card-text>
+
+    <v-card-text class="text-center">
+      <v-list dense>
+        <v-list-item-group v-model="selectedItem" color="primary">
+          <v-list-item v-for="group in groups" :key="group.id">
+            <v-list-item-avatar>
+              <v-avatar left v-if="group.avatar">
+                <v-img :src="group.avatar"></v-img>
+              </v-avatar>
+              <v-avatar left v-else>
+                <v-img src="@/assets/groups.jpg"></v-img>
+              </v-avatar>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title v-text="group.name"></v-list-item-title>
+              <v-list-item-subtitle v-text="group.description">
+              </v-list-item-subtitle>
+            </v-list-item-content>
+            <v-list-item-content>
+              <v-list-item-subtitle>
+                ({{ group.sum_members }} Participantes)
+              </v-list-item-subtitle>
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-icon @click="EditGroup(group)">
+                mdi-pencil
+              </v-icon>
+            </v-list-item-action>
+            <v-list-item-action>
+              <v-icon @click="AssignPermission(group)">
+                mdi-shield-account
+              </v-icon>
+            </v-list-item-action>
+          </v-list-item>
+        </v-list-item-group>
+      </v-list>
+    </v-card-text>
+
+    <v-dialog v-model="dialog" @click:outside="dialog = false" width="550px">
+      <v-card>
+        <v-container>
+          <v-card-title>
             <v-row>
-              <v-col cols="12">
-                <v-autocomplete
-                  v-model="model"
-                  :items="items"
-                  :filter="customFilter"
-                  :search-input.sync="search2"
-                  hide-details
-                  hide-selected
-                  item-text="email"
-                  label="Buscar participantes"
-                  solo
-                  prepend-icon="mdi-account-circle-outline"
-                  @change="reset"
+              <v-col cols="12" class="text-center">
+                Asignar permisos de Administrador
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-avatar left v-if="detail.avatar">
+                  <v-img :src="detail.avatar"></v-img>
+                </v-avatar>
+                <v-avatar left v-else>
+                  <v-img src="@/assets/groups.jpg"></v-img>
+                </v-avatar>
+                <span class="text-h5">
+                  <strong>Grupo: </strong>{{ detail.name }}</span
                 >
-                  <template v-slot:item="{ item }">
+              </v-col>
+              <v-col v-if="detail.user" cols="12" md="6">
+                <v-chip class="ma-2">
+                  Creado por: {{ detail.user.get_full_name }}
+                </v-chip>
+              </v-col>
+            </v-row>
+          </v-card-title>
+          <v-card-text>
+            <v-col cols="12" class="text-center">
+              <h4>
+                <strong>Participantes ({{ detail.sum_members }})</strong>
+              </h4>
+            </v-col>
+          </v-card-text>
+          <v-card-text class="text-center">
+            <v-virtual-scroll
+              :items="list_members"
+              height="200"
+              item-height="60"
+            >
+              <template v-slot:default="{ item }">
+                <v-list dense>
+                  <v-list-item :key="item.id">
                     <v-list-item-avatar>
-                      <v-img
-                        v-if="item.avatar"
-                        :alt="`${item.get_full_name} avatar`"
-                        :src="item.avatar"
-                      ></v-img>
+                      <v-avatar left v-if="item.user.avatar">
+                        <v-img :src="item.user.avatar"></v-img>
+                      </v-avatar>
                       <v-avatar color="indigo" v-else>
-                        <span class="white--text text-h5">{{
-                          item.get_initials
-                        }}</span>
+                        <span
+                          v-if="item.user.get_initials"
+                          class="white--text text-h5"
+                          >{{ item.user.get_initials }}</span
+                        >
+                        <v-img v-else src="@/assets/user_group.png"></v-img>
                       </v-avatar>
                     </v-list-item-avatar>
                     <v-list-item-content>
                       <v-list-item-title
-                        v-text="item.get_full_name"
+                        v-text="item.user.get_full_name"
                       ></v-list-item-title>
-                      <v-list-item-subtitle
-                        v-text="item.email"
-                      ></v-list-item-subtitle>
+                      <v-list-item-subtitle v-text="item.user.email">
+                      </v-list-item-subtitle>
                     </v-list-item-content>
-                  </template>
-                </v-autocomplete>
-              </v-col>
-              <v-col cols="12" md="5">
-                <v-text-field
-                  label="Nombre"
-                  class="purple-input"
-                  prepend-icon="mdi-account-group"
-                  v-model="group.name"
-                  :rules="GroupRules"
-                />
-              </v-col>
+                    <v-list-item-icon>
+                      <v-list-item>
+                        <v-switch
+                          v-model="item.is_admin"
+                          label="Admin"
+                          color="success"
+                          :value="item.is_admin"
+                          hide-details
+                        ></v-switch>
+                      </v-list-item>
+                    </v-list-item-icon>
+                  </v-list-item>
+                </v-list>
+              </template>
+            </v-virtual-scroll>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
 
-              <v-col cols="12" md="7">
-                <v-text-field
-                  label="Descripcion"
-                  class=" purple-input"
-                  prepend-icon="mdi-notebook-outline"
-                  v-model="group.description"
-                ></v-text-field>
-              </v-col>
-
-              <v-row justify="center">
-                <v-avatar v-if="CurrentAvatar" size="60">
-                  <img alt="user" :src="CurrentAvatar" />
-                </v-avatar>
-                <v-avatar v-else size="60">
-                  <img alt="user" src="@/assets/groups.jpg" />
-                </v-avatar>
-                <v-col cols="12" md="5">
-                  <v-file-input
-                    accept="image/*"
-                    label="Logo"
-                    v-model="newAvatarGroup"
-                    @change="onFileSelected()"
-                  ></v-file-input>
-                </v-col>
-              </v-row>
-            </v-row>
-            <v-row justify="center">
-              <v-col cols="12">
-                <v-card color="#FAFAFA" dense>
-                  <v-row justify="center">
-                    <v-col cols="12" md="8" class="text-center">
-                      <h4>
-                        <strong
-                          >Participantes ({{ count_participants }})</strong
-                        >
-                      </h4>
-                    </v-col>
-                    <v-col cols="12" md="8" class="text-center">
-                      <v-chip
-                        v-for="item in members"
-                        :key="item.email"
-                        close
-                        @click:close="remove(item)"
-                      >
-                        <v-avatar left v-if="item.avatar">
-                          <v-img :src="item.avatar"></v-img>
-                        </v-avatar>
-                        <v-avatar color="indigo" left v-else>
-                          <span class="white--text text-h5">{{
-                            item.get_initials
-                          }}</span>
-                        </v-avatar>
-                        <span v-if="item.get_initials">{{
-                          item.get_full_name
-                        }}</span>
-                        <span v-else>{{ item.email }}</span>
-                      </v-chip>
-                    </v-col>
-                  </v-row>
-                </v-card>
-              </v-col>
-            </v-row>
-          </v-form>
-
-          <v-row justify="center">
-            <v-btn
-              :loading="isUpdating"
-              rounded
-              color="blue"
-              dark
-              @click="addGroup()"
-              v-if="showAdd"
-            >
-              <v-icon>
-                mdi-plus
-              </v-icon>
-              Agregar
+            <v-btn color="green darken-1" text @click="dialog = false">
+              Cerrar
             </v-btn>
             <v-btn
-              v-if="!showAdd"
-              :loading="isUpdating"
-              rounded
-              color="blue"
-              dark
-              @click="saveGroup(group.id)"
+              color="green darken-1"
+              text
+              @click="savePermissions(detail.id)"
             >
-              <v-icon>
-                mdi-content-save-outline
-              </v-icon>
               Guardar
             </v-btn>
-            <v-btn
-              v-if="!showAdd"
-              class="mr-2"
-              outlined
-              color="red"
-              fab
-              small
-              @click="cancel()"
-            >
-              <v-icon small>
-                mdi-close
-              </v-icon>
-            </v-btn>
-          </v-row>
-        </v-card-text>
-
-        <v-card-text class="text-center">
-          <v-list dense>
-            <v-list-item-group v-model="selectedItem" color="primary">
-              <v-list-item v-for="group in groups" :key="group.id">
-                <v-list-item-avatar>
-                  <v-avatar left v-if="group.avatar">
-                    <v-img :src="group.avatar"></v-img>
-                  </v-avatar>
-                  <v-avatar left v-else>
-                    <v-img src="@/assets/groups.jpg"></v-img>
-                  </v-avatar>
-                </v-list-item-avatar>
-                <v-list-item-content>
-                  <v-list-item-title v-text="group.name"></v-list-item-title>
-                  <v-list-item-subtitle v-text="group.description">
-                  </v-list-item-subtitle>
-                </v-list-item-content>
-                <v-list-item-content>
-                  <v-list-item-subtitle>
-                    ({{ group.sum_members }} Participantes)
-                  </v-list-item-subtitle>
-                </v-list-item-content>
-                <v-list-item-action>
-                  <v-icon @click="EditGroup(group)">
-                    mdi-pencil
-                  </v-icon>
-                </v-list-item-action>
-                <v-list-item-action>
-                  <v-icon @click="AssignPermission(group)">
-                    mdi-shield-account
-                  </v-icon>
-                </v-list-item-action>
-              </v-list-item>
-            </v-list-item-group>
-          </v-list>
-        </v-card-text>
-
-        <v-dialog
-          v-model="dialog"
-          @click:outside="dialog = false"
-          width="550px"
-        >
-          <v-card>
-            <v-container>
-              <v-card-title>
-                <v-row>
-                  <v-col cols="12" class="text-center">
-                    Asignar permisos de Administrador
-                  </v-col>
-                  <v-col cols="12" md="6">
-                    <v-avatar left v-if="detail.avatar">
-                      <v-img :src="detail.avatar"></v-img>
-                    </v-avatar>
-                    <v-avatar left v-else>
-                      <v-img src="@/assets/groups.jpg"></v-img>
-                    </v-avatar>
-                    <span class="text-h5">
-                      <strong>Grupo: </strong>{{ detail.name }}</span
-                    >
-                  </v-col>
-                  <v-col v-if="detail.user" cols="12" md="6">
-                    <v-chip class="ma-2">
-                      Creado por: {{ detail.user.get_full_name }}
-                    </v-chip>
-                  </v-col>
-                </v-row>
-              </v-card-title>
-              <v-card-text>
-                <v-col cols="12" class="text-center">
-                  <h4>
-                    <strong>Participantes ({{ detail.sum_members }})</strong>
-                  </h4>
-                </v-col>
-              </v-card-text>
-              <v-card-text class="text-center">
-                <v-virtual-scroll
-                  :items="list_members"
-                  height="200"
-                  item-height="60"
-                >
-                  <template v-slot:default="{ item }">
-                    <v-list dense>
-                      <v-list-item :key="item.id">
-                        <v-list-item-avatar>
-                          <v-avatar left v-if="item.user.avatar">
-                            <v-img :src="item.user.avatar"></v-img>
-                          </v-avatar>
-                          <v-avatar color="indigo" v-else>
-                            <span
-                              v-if="item.user.get_initials"
-                              class="white--text text-h5"
-                              >{{ item.user.get_initials }}</span
-                            >
-                            <v-img v-else src="@/assets/user_group.png"></v-img>
-                          </v-avatar>
-                        </v-list-item-avatar>
-                        <v-list-item-content>
-                          <v-list-item-title
-                            v-text="item.user.get_full_name"
-                          ></v-list-item-title>
-                          <v-list-item-subtitle v-text="item.user.email">
-                          </v-list-item-subtitle>
-                        </v-list-item-content>
-                        <v-list-item-icon>
-                          <v-list-item>
-                            <v-switch
-                              v-model="item.is_admin"
-                              label="Admin"
-                              color="success"
-                              :value="item.is_admin"
-                              hide-details
-                            ></v-switch>
-                          </v-list-item>
-                        </v-list-item-icon>
-                      </v-list-item>
-                    </v-list>
-                  </template>
-                </v-virtual-scroll>
-              </v-card-text>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-
-                <v-btn color="green darken-1" text @click="dialog = false">
-                  Cerrar
-                </v-btn>
-                <v-btn
-                  color="green darken-1"
-                  text
-                  @click="savePermissions(detail.id)"
-                >
-                  Guardar
-                </v-btn>
-              </v-card-actions>
-            </v-container>
-          </v-card>
-        </v-dialog>
-      </base-material-card>
-    </v-col>
-    <v-col cols="12" md="4">
-      <my-groups />
-    </v-col>
-  </v-row>
+          </v-card-actions>
+        </v-container>
+      </v-card>
+    </v-dialog>
+  </base-material-card>
 </template>
 
 <script>
 import apiGroups from "@/api/groups/";
-import MyGroups from "@/components/users/MyGroups.vue";
-import Participants from "@/components/events/Participants.vue";
 
 export default {
   name: "Groups",
-  components: {
-    MyGroups
-  },
+
   data() {
     return {
       valid: true,
@@ -366,7 +349,8 @@ export default {
       idGroup: 0,
       dialog: false,
       detail: [],
-      is_admin: false
+      is_admin: false,
+      reload: false
     };
   },
 
@@ -376,9 +360,6 @@ export default {
   computed: {
     getUser() {
       return this.$store.getters.getUser.id;
-    },
-    parsedDirection() {
-      return this.direction.split(" ");
     }
   },
   watch: {
@@ -426,7 +407,9 @@ export default {
       });
     },
     addMembers(user) {
-      if (this.members.indexOf(user) == -1) {
+      let index = this.members.findIndex(item => item.email === user.email);
+
+      if (index == -1) {
         this.members.push(user);
         this.group.members.push(user.id);
         this.count_participants = this.group.members.length;
@@ -474,8 +457,10 @@ export default {
           .addGroup(formData)
           .then(response => {
             this.RetrieveGroups();
+            this.reload = true;
 
             this.$store.dispatch("showNotification", notification);
+            this.$store.dispatch("reload", true);
           })
           .catch(error => {
             console.log(error);
@@ -539,8 +524,8 @@ export default {
       this.count_participants = 0;
     },
     EditGroup(item) {
-      this.count_participants = 0;
       this.showAdd = false;
+      this.clearData();
 
       this.group.id = item.id;
       this.group.name = item.name;
@@ -596,8 +581,10 @@ export default {
           .editGroup(idGroup, formData)
           .then(response => {
             this.RetrieveGroups();
+            this.reload = true;
 
             this.$store.dispatch("showNotification", notification);
+            this.$store.dispatch("reload", true);
           })
           .catch(error => {
             //console.log(error);

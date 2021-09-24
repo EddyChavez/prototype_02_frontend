@@ -327,8 +327,8 @@ export default {
           avatar: null,
           email: this.email,
           get_full_name: "",
-          get_initials: "",
-          id: 0
+          get_initials: ""
+          //id: 0
         };
 
         this.addMembers(item);

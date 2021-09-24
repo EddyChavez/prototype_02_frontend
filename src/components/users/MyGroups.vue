@@ -45,7 +45,7 @@
                       color="red"
                       v-bind="attrs"
                       v-on="on"
-                      @click="leaveGroup(detail.id)"
+                      @click="leave(detail.id)"
                     >
                       mdi-undo
                     </v-icon>
@@ -154,11 +154,19 @@ export default {
   created() {
     this.loadGroups();
   },
-  // computed: {
-  //   getUser() {
-  //     return this.$store.getters.getUser.id;
-  //   }
-  // },
+  computed: {
+    reload() {
+      return this.$store.getters.reload;
+    }
+  },
+  watch: {
+    reload(val) {
+      if (val) {
+        this.loadGroups();
+        this.$store.dispatch("reload", false);
+      }
+    }
+  },
   methods: {
     showDetail(group) {
       this.dialog = true;
@@ -178,10 +186,17 @@ export default {
         this.list_groups = response.data;
       });
     },
-    leaveGroup(idGroup) {
-      apiGroups.leaveGroup(idGroup).then(response => {
-        this.loadGroups();
-      });
+    leave(idGroup) {
+      let idUser = this.$store.getters.getUser.id;
+
+      apiGroups
+        .leaveGroup(idGroup, idUser)
+        .then(response => {
+          this.loadGroups();
+        })
+        .catch(error => {
+          console.log(error);
+        });
 
       this.dialog = false;
     }

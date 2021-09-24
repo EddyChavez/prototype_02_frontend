@@ -68,8 +68,8 @@ const apiGroups = {
       }
     });
   },
-  leaveGroup: function(idGroup) {
-    return axios.post(`${API_URL}/api/tribes/leave/${idGroup}/`, {
+  leaveGroup: function(idGroup, idUser) {
+    return axios.get(`${API_URL}/api/tribes/leave/${idGroup}/${idUser}/`, {
       headers: {
         Authorization: `Token ${getTokenApi()}`
       }
