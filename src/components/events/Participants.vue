@@ -75,6 +75,7 @@
                 hide-details
                 hide-selected
                 item-text="name"
+                item-value="id"
                 label="Buscar Grupos"
                 solo
                 prepend-icon="mdi-account-group"
@@ -117,7 +118,7 @@
                   @click:append-outer="sendMessage"
                   @click:clear="clearMessage"
                   :rules="emailRules"
-                  v-on:keyup.enter.prevent="sendMessage"
+                  @keyup.enter.native="sendMessage"
                 ></v-text-field>
               </v-form>
             </v-col>
@@ -133,108 +134,6 @@
         </h4>
       </v-col>
     </v-row>
-
-    <!-- <v-row justify="center">
-      <v-col cols="12" md="6"> </v-col>
-      <v-col cols="12" md="6">
-        <v-chip
-          v-for="group in members"
-          :key="group.name"
-          close
-          @click:close="removeItem(group)"
-        >
-          <v-avatar left v-if="group.avatar">
-            <v-img :src="group.avatar"></v-img>
-          </v-avatar>
-          <v-avatar color="red" left v-else>
-            <span class="white--text text-h5">{{ group.name }}</span>
-          </v-avatar>
-          {{ group.name }}
-        </v-chip>
-
-        <v-list-item v-for="group in groups" :key="group.id">
-          <v-list-item-avatar>
-            <v-img
-              v-if="group.avatar"
-              :alt="`${group.name} avatar`"
-              :src="group.avatar"
-            ></v-img>
-            <v-avatar color="red" v-else>
-              <span class="white--text text-h5">{{ user.sum_members }}</span>
-            </v-avatar>
-          </v-list-item-avatar>
-
-          <v-list-item-content @click="addMembers(group)">
-            <v-list-item-title v-text="group.name"></v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-      </v-col>
-      <v-col cols="12" md="6" class="text-center"> </v-col>
-    </v-row> -->
-
-    <!-- <v-form>
-      <v-container>
-        <v-row>
-          <v-col cols="12">
-            <v-autocomplete
-              v-model="friends"
-              :disabled="isUpdating"
-              :items="people"
-              filled
-              chips
-              color="blue-grey lighten-2"
-              label="Select"
-              item-text="name"
-              item-value="name"
-              multiple
-            >
-              <template v-slot:selection="data">
-                <v-chip
-                  v-bind="data.attrs"
-                  :input-value="data.selected"
-                  close
-                  @click="data.select"
-                  @click:close="remove(data.item)"
-                >
-                  <v-avatar left>
-                    <v-img :src="data.item.avatar"></v-img>
-                  </v-avatar>
-                  {{ data.item.name }}
-                </v-chip>
-              </template>
-              <template v-slot:item="data">
-                <template v-if="typeof data.item !== 'object'">
-                  <v-list-item-content v-text="data.item"></v-list-item-content>
-                </template>
-                <template v-else>
-                  <v-list-item-avatar>
-                    <img :src="data.item.avatar" />
-                  </v-list-item-avatar>
-                  <v-list-item-content>
-                    <v-list-item-title
-                      v-html="data.item.name"
-                    ></v-list-item-title>
-                    <v-list-item-subtitle
-                      v-html="data.item.group"
-                    ></v-list-item-subtitle>
-                  </v-list-item-content>
-                </template>
-              </template>
-            </v-autocomplete>
-          </v-col>
-        </v-row>
-        <v-row>
-          <div class="text-center flex">
-            <v-btn rounded color="blue" dark>
-              <v-icon>
-                mdi-share-variant-outline
-              </v-icon>
-              Compartir
-            </v-btn>
-          </div>
-        </v-row>
-      </v-container>
-    </v-form> -->
     <v-card>
       <v-card-title>
         <v-spacer></v-spacer>
@@ -334,7 +233,13 @@
               <v-btn color="blue darken-1" text @click="dialogDelete = false"
                 >Cancelar</v-btn
               >
-              <v-btn rounded color="blue" dark @click="sendInvitations">
+              <v-btn
+                :loading="loading"
+                rounded
+                color="blue"
+                dark
+                @click="sendInvitations"
+              >
                 Enviar
                 <v-icon right>
                   mdi-send
@@ -346,20 +251,16 @@
         </v-card>
       </v-dialog>
     </v-col>
-    <alerts />
   </base-material-card>
 </template>
 
 <script>
 import apiGroups from "@/api/groups/";
 import Participants from "@/components/events/Participants.vue";
-import Alerts from "@/components/base/Alerts.vue";
 
 export default {
   name: "Participants",
-  components: {
-    Alerts
-  },
+
   data() {
     return {
       kword: "",
@@ -427,13 +328,10 @@ export default {
           email: this.email,
           get_full_name: "",
           get_initials: "",
-          id: this.email
+          id: 0
         };
 
-        if (this.members.indexOf(item) == -1) {
-          this.members.push(item);
-          this.count_participants = this.members.length;
-        }
+        this.addMembers(item);
 
         this.clearMessage();
         this.$refs.form.reset();
@@ -469,13 +367,15 @@ export default {
         this.model_users = null;
       });
     },
-    reset_groups() {
-      console.log(this.model_groups);
-
+    reset_groups(idGroup) {
       apiGroups
-        .getMembers(21)
+        .getMembers(idGroup)
         .then(response => {
-          this.members = response.data[0].members;
+          this.items_users = response.data[0].members;
+
+          this.items_users.forEach(item => {
+            this.addMembers(item.user);
+          });
 
           this.count_participants = this.members.length;
         })
@@ -487,9 +387,11 @@ export default {
         this.model_groups = null;
       });
     },
-    addMembers(item) {
-      if (this.members.indexOf(item) == -1) {
-        this.members.push(item);
+    addMembers(user) {
+      let index = this.members.findIndex(item => item.email === user.email);
+
+      if (index == -1) {
+        this.members.push(user);
         this.count_participants = this.members.length;
       }
     },
@@ -509,7 +411,8 @@ export default {
     sendInvitations() {
       let formData = new FormData();
 
-      console.log(this.members);
+      this.loading = true;
+      setTimeout(() => (this.loading = false), 4000);
 
       formData.append("idEvent", this.idEvent);
       this.members.forEach(item => {
@@ -519,8 +422,6 @@ export default {
       apiGroups
         .sendEmail(formData)
         .then(response => {
-          this.dialogDelete = false;
-
           let notification = {
             snackbar: true,
             direction: "top center",
@@ -530,16 +431,11 @@ export default {
           };
           this.$store.dispatch("showNotification", notification);
 
-          this.loading = true;
-          setTimeout(() => (this.loading = false), 3000);
+          this.$router.push({
+            name: "Eventos"
+          });
 
-          setTimeout(() => (this.redirect = true), 3000);
-
-          if (this.redirect) {
-            this.$router.push({
-              name: "Eventos"
-            });
-          }
+          this.dialogDelete = false;
         })
         .catch(error => {
           let notification = {

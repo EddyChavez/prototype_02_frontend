@@ -20,10 +20,7 @@
     <v-list dense nav>
       <v-list-item @click="to_home">
         <v-list-item-avatar class="align-self-center" color="white" contain>
-          <v-img
-            src="https://demos.creative-tim.com/vuetify-material-dashboard/favicon.ico"
-            max-height="30"
-          />
+          <v-img src="@/assets/logo3.jpg" max-height="30" />
         </v-list-item-avatar>
 
         <v-list-item-content>
@@ -57,7 +54,7 @@
         :item="{
           title: $t('Tutorial'),
           icon: 'mdi-youtube',
-          to: '/contact'
+          to: '/tutorial'
         }"
       />
       <base-item
@@ -95,12 +92,12 @@ export default {
   data: () => ({
     items: [
       {
-        title: "eventos",
+        title: "events",
         icon: "mdi-view-dashboard",
         to: "/pages/events"
       },
       {
-        title: "mis eventos",
+        title: "Mis Eventos",
         icon: "mdi-calendar-edit",
         to: "/pages/my-events"
       },

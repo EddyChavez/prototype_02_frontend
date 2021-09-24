@@ -1,9 +1,14 @@
 import Vue from "vue";
 import Vuex from "vuex";
+import createPersistedState from "vuex-persistedstate";
 import moduleNotifications from "./notifications.js";
 import moduleUser from "./users.js";
 
 Vue.use(Vuex);
+
+const userData = createPersistedState({
+  paths: ["user"]
+});
 
 export default new Vuex.Store({
   state: {
@@ -24,5 +29,6 @@ export default new Vuex.Store({
   modules: {
     moduleNotifications,
     moduleUser
-  }
+  },
+  plugins: [userData]
 });

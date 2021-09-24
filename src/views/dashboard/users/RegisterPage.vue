@@ -141,7 +141,7 @@ export default {
       LastNameRules: [v => !!v || "Este campo es requerido"],
       passwordRules: [
         v => !!v || "Este campo es requerido",
-        v => v.length >= 8 || "Minimo 8 caracteres"
+        v => (v && v.length >= 8) || "Minimo 8 caracteres"
       ],
       password2Rules: [
         v => !!v || "Este campo es requerido",

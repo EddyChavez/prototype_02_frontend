@@ -42,6 +42,38 @@
                 </v-col>
 
                 <v-col cols="12" md="6">
+                  <!-- <v-menu
+                    ref="menu"
+                    v-model="menu1"
+                    :close-on-content-click="false"
+                    transition="scale-transition"
+                    offset-y
+                    min-width="auto"
+                  >
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-text-field
+                        v-model="getUser.date_birth"
+                        label="Fecha Nacimiento"
+                        prepend-icon="mdi-calendar"
+                        readonly
+                        v-bind="attrs"
+                        v-on="on"
+                      ></v-text-field>
+                    </template>
+                    <v-date-picker
+                      v-model="getUser.date_birth"
+                      :active-picker.sync="activePicker"
+                      :max="
+                        new Date(
+                          Date.now() - new Date().getTimezoneOffset() * 60000
+                        )
+                          .toISOString()
+                          .substr(0, 10)
+                      "
+                      min="1950-01-01"
+                      @change="save"
+                    ></v-date-picker>
+                  </v-menu> -->
                   <v-menu
                     v-model="menu1"
                     :close-on-content-click="false"
@@ -63,7 +95,9 @@
                     </template>
                     <v-date-picker
                       v-model="getUser.date_birth"
+                      :active-picker.sync="activePicker"
                       @input="menu1 = false"
+                      locale="es"
                     ></v-date-picker>
                   </v-menu>
                 </v-col>
@@ -150,11 +184,11 @@
                 </template>
                 <v-card>
                   <v-card-title class="text-h5">
-                    Cambiar Constraseña
+                    Cambiar Contraseña
                   </v-card-title>
                   <v-card-text>
                     <v-row justify="center">
-                      <v-form ref="form" v-model="valid" lazy-validation>
+                      <v-form ref="form2" v-model="valid2" lazy-validation>
                         <v-col cols="12" md="12">
                           <v-text-field
                             label="Contraseña Actual"
@@ -204,7 +238,7 @@
                   </v-card-text>
                   <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="green darken-1" text @click="clearForm()">
+                    <v-btn color="green darken-1" text @click="clearForm">
                       Cancelar
                     </v-btn>
                     <v-btn color="green darken-1" text @click="newPassword()">
@@ -224,25 +258,23 @@
 
 <script>
 import apiUsers from "@/api/users";
-//import MyGroups from "@/components/users/MyGroups.vue";
 import { mapGetters } from "vuex";
 
 export default {
   name: "UserProfile",
-  components: {
-    //MyGroups
-  },
   data() {
     return {
       valid: true,
+      valid2: true,
       dialog: false,
       loading: false,
       menu1: false,
+      activePicker: null,
+      date: null,
       newAvatar: null,
       snackbar: false,
       message: "",
       direction: "top center",
-
       old_password: "",
       new_password: "",
       new_password_confirm: "",
@@ -250,7 +282,7 @@ export default {
       oldPasswordRules: [v => !!v || "Este campo es requerido"],
       passwordRules: [
         v => !!v || "Este campo es requerido",
-        v => v.length >= 8 || "Minimo 8 caracteres"
+        v => (v && v.length >= 8) || "Minimo 8 caracteres"
       ],
       passwordConfirmRules: [
         v => !!v || "Este campo es requerido",
@@ -259,26 +291,53 @@ export default {
       show1: false,
       show2: false,
       show3: false,
-      errors: []
+      errors: [],
+      getUser: []
     };
   },
-  computed: {
-    ...mapGetters({
-      getUser: "getUser"
-    })
+  watch: {
+    menu1(val) {
+      val && setTimeout(() => (this.activePicker = "YEAR"));
+    }
   },
-
+  // computed: {
+  //   ...mapGetters({
+  //     getUser: "getUser"
+  //   })
+  // },
+  beforeMount() {
+    this.retrieveUser();
+  },
   methods: {
+    retrieveUser() {
+      const user = this.$store.getters.getUser;
+      if (user === null) {
+        apiUsers
+          .retrieve()
+          .then(response => {
+            this.$store.dispatch("retrieveUser", response.data);
+            this.getUser = response.data;
+          })
+          .catch(error => {
+            this.$router.push("/");
+          });
+      } else {
+        this.getUser = user;
+      }
+    },
+    save(date) {
+      this.$refs.menu.save(date);
+    },
     onFileSelected() {
       return this.newAvatar;
     },
     clearForm() {
+      this.$refs.form2.reset();
       this.dialog = false;
       this.errors = [];
-      this.$refs.form.reset();
     },
     newPassword() {
-      if (this.$refs.form.validate()) {
+      if (this.$refs.form2.validate()) {
         const formData = {
           old_password: this.old_password,
           new_password: this.new_password
@@ -289,7 +348,6 @@ export default {
         apiUsers
           .changePassword(formData)
           .then(response => {
-            console.log(response);
             this.clearForm();
             this.message = "Contraseña Actualizada";
             this.snackbar = true;
@@ -313,7 +371,7 @@ export default {
 
         formData.append("names", this.getUser.names);
         formData.append("last_names", this.getUser.last_names);
-        formData.append("last_birth", this.getUser.last_birth);
+        formData.append("date_birth", this.getUser.date_birth);
         formData.append("gender", this.getUser.gender);
         formData.append("email", this.getUser.email);
 
@@ -325,11 +383,19 @@ export default {
         apiUsers
           .edit(idUser, formData)
           .then(response => {
-            this.$store.dispatch("retrieveUser", response.data);
             this.newAvatar = null;
             this.message = "Perfil Actualizado";
             this.snackbar = true;
             setTimeout(() => (this.snackbar = false), 3000);
+            apiUsers
+              .retrieve()
+              .then(response => {
+                this.$store.dispatch("retrieveUser", response.data);
+                this.getUser = response.data;
+              })
+              .catch(error => {
+                this.$router.push("/");
+              });
           })
           .catch(error => {
             for (const err in error.response.data) {

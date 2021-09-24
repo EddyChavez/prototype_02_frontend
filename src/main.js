@@ -11,15 +11,12 @@
 //
 // * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
-//import CKEditor from "@ckeditor/ckeditor5-vue2";
-// import ImageResize from "@ckeditor/ckeditor5-image/src/imageresize";
-// import { uploader } from "@/plugins/ckeditor";
-//import mercadopago from "mercadopago";
-//import CKEditor from "@ckeditor/ckeditor5-vue2";
 import Vue from "vue";
 import LoadScript from "vue-plugin-load-script";
+import VueYouTubeEmbed from "vue-youtube-embed";
 import Vue2Editor from "vue2-editor";
 import App from "./App.vue";
+//import { functionUsers } from "./functions/users";
 import i18n from "./i18n";
 import "./plugins/base";
 import "./plugins/chartist";
@@ -28,36 +25,21 @@ import vuetify from "./plugins/vuetify";
 import router from "./router";
 import store from "./store/store";
 
-//Vue.use(CKEditor);
-// Vue.use(VueAuthenticate, {
-//   baseUrl: "youApiDomain",
-//   storageType: "localStorage",
-//   tokenPath: "token",
+Vue.use(Vue2Editor);
+Vue.use(LoadScript);
+Vue.use(VueYouTubeEmbed);
 
-//   providers: {
-//     google: {
-//       clientId: "yourClientId",
-//       redirectUri: "",
-//       url: "authenticationUrl"
+// Vue.mixin({
+//   methods: {
+//     gMixinFun: function() {
+//       return "this is a mixin test";
 //     }
 //   }
 // });
-//Vue.use(mercadopago);
-Vue.use(Vue2Editor);
-Vue.use(LoadScript);
-//Vue.use(CKEditor);
+
+//Vue.prototype.$functionUsers = functionUsers;
 
 Vue.config.productionTip = false;
-
-// Vue.loadScript("https://sdk.mercadopago.com/js/v2")
-//   .then(() => {
-//     // Script is loaded, do something
-//     console.log("Cargado..");
-//   })
-//   .catch(() => {
-//     // Failed to fetch script
-//     console.log("No Cargado..");
-//   });
 
 new Vue({
   router,

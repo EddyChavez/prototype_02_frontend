@@ -3,15 +3,15 @@ import { API_URL } from "@/utils/constants.js";
 import axios from "axios";
 
 const apiGroups = {
-  byUser: function(idUser) {
-    return axios.get(`${API_URL}/api/tribes/by-user/${idUser}/`, {
+  byUser: function() {
+    return axios.get(`${API_URL}/api/tribes/by-user/`, {
       headers: {
         Authorization: `Token ${getTokenApi()}`
       }
     });
   },
-  myGroups: function(idUser) {
-    return axios.get(`${API_URL}/api/users/belong-tribes/${idUser}/`, {
+  myGroups: function() {
+    return axios.get(`${API_URL}/api/users/belong-tribes/`, {
       headers: {
         Authorization: `Token ${getTokenApi()}`
       }
@@ -54,7 +54,7 @@ const apiGroups = {
     });
   },
   editGroup: function(idGroup, formData) {
-    return axios.put(`${API_URL}/api/tribes/edit/${idGroup}/`, formData, {
+    return axios.post(`${API_URL}/api/tribes/edit/${idGroup}/`, formData, {
       headers: {
         Authorization: `Token ${getTokenApi()}`,
         "Content-Type": "multipart/form-data"
@@ -67,6 +67,24 @@ const apiGroups = {
         Authorization: `Token ${getTokenApi()}`
       }
     });
+  },
+  leaveGroup: function(idGroup) {
+    return axios.post(`${API_URL}/api/tribes/leave/${idGroup}/`, {
+      headers: {
+        Authorization: `Token ${getTokenApi()}`
+      }
+    });
+  },
+  assignPermissions: function(idGroup, formData) {
+    return axios.post(
+      `${API_URL}/api/tribes/assign-permissions/${idGroup}/`,
+      formData,
+      {
+        headers: {
+          Authorization: `Token ${getTokenApi()}`
+        }
+      }
+    );
   },
   sendEmail: function(formData) {
     return axios.post(`${API_URL}/api/tribes/invitations/`, formData, {

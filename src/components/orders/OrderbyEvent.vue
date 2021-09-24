@@ -21,6 +21,7 @@
             rounded
             color="blue"
             dark
+            id="custom-disabled-delivery"
             @click="orderDelivered"
           >
             <v-icon left>
@@ -70,6 +71,7 @@
             rounded
             color="red"
             dark
+            id="custom-disabled-close"
             @click="closeEvent"
           >
             <v-icon left>
@@ -121,26 +123,45 @@
           <v-sheet elevation="10">
             <base-material-card color="primary">
               <template v-slot:heading>
-                <!-- <v-row>
-                  <v-col cols="12" md="12">
+                <v-row>
+                  <v-col cols="12" md="10">
                     <div class="display-2 font-weight-light">
-                      Taquiza
+                      {{ name }}
                     </div>
                   </v-col>
-                </v-row> -->
+                  <v-col cols="12" md="2" class="text-center">
+                    <v-tooltip left>
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-btn
+                          :loading="isUpdating"
+                          dark
+                          icon
+                          v-bind="attrs"
+                          v-on="on"
+                          @click="loadOrder()"
+                        >
+                          <v-icon dark>
+                            mdi-refresh
+                          </v-icon>
+                        </v-btn>
+                      </template>
+                      <span>Actualizar Pedido</span>
+                    </v-tooltip>
+                  </v-col>
+                </v-row>
                 <v-row>
                   <v-col cols="12" md="5">
-                    <div class="display-2 float-md-center font-weight-bold">
+                    <div class="display-1 float-md-center font-weight-bold">
                       Cantidad: {{ count }}
                     </div>
                   </v-col>
                   <v-col cols="12" md="4">
-                    <div class="display-2 float-md-center font-weight-bold">
+                    <div class="display-1 float-md-center font-weight-bold">
                       Pagado: $ {{ parseFloat(paid_out).toFixed(2) }}
                     </div>
                   </v-col>
                   <v-col cols="12" md="3">
-                    <div class="display-2 float-md-center font-weight-bold">
+                    <div class="display-1 float-md-center font-weight-bold">
                       Total: $ {{ parseFloat(total).toFixed(2) }}
                     </div>
                   </v-col>
@@ -159,7 +180,6 @@
                 <template v-slot:top>
                   <v-toolbar flat>
                     <div class="display-1 float-md-center font-weight-bold">
-                      Taquiza
                       <v-chip
                         class="ma-2"
                         :color="getColor(status)"
@@ -385,6 +405,7 @@ export default {
     return {
       valid: true,
       loading: false,
+      isUpdating: false,
       dialog: false,
       disabled_close: false,
       disable_delivery: false,
@@ -428,6 +449,7 @@ export default {
       progress_value: 0,
       status: "",
       list_users: []
+      name: ""
     };
   },
   watch: {
@@ -447,7 +469,8 @@ export default {
   methods: {
     retrieveStatus() {
       apiEvents.getStatus(this.idEvent).then(response => {
-        this.status = response.data.data;
+        this.status = response.data.status;
+        this.name = response.data.name;
 
         if (this.status == "CONCLUIDO") {
           this.disable_delivery = true;
@@ -482,6 +505,9 @@ export default {
       }
     },
     loadOrder: function() {
+      this.isUpdating = true;
+      setTimeout(() => (this.isUpdating = false), 2000);
+
       apiOrders.byEvent(this.idEvent).then(response => {
         this.list_orders = response.data;
 
@@ -623,7 +649,7 @@ export default {
         this.updateStatus("CONCLUIDO");
 
         this.closeDialog = false;
-        this.loadOrder();
+        //this.loadOrder();
 
         // this.$router.push({
         //   name: "Eventos"
@@ -648,7 +674,7 @@ export default {
       formData.append("status", status);
 
       apiEvents.editStatus(this.idEvent, formData).then(response => {
-        console.log(response.data);
+        this.retrieveStatus();
       });
     }
   }
@@ -658,5 +684,14 @@ export default {
 <style scoped>
 .v-progress-circular {
   margin: 1rem;
+}
+#custom-disabled-delivery.v-btn--disabled {
+  background-color: #78909c !important;
+  color: white !important;
+}
+
+#custom-disabled-close.v-btn--disabled {
+  background-color: #78909c !important;
+  color: white !important;
 }
 </style>

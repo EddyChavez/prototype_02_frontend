@@ -62,6 +62,7 @@
                           <v-date-picker
                             v-model="editedItem.date_start"
                             @input="menu1 = false"
+                            locale="es"
                           ></v-date-picker>
                         </v-menu>
                       </v-col>
@@ -208,6 +209,9 @@
         <v-avatar size="40">
           <img alt="user" :src="item.image" />
         </v-avatar>
+        <v-avatar v-else size="56">
+          <img alt="user" src="@/assets/events2.jpg" />
+        </v-avatar>
       </template>
       <template v-slot:item.actions="{ item }">
         <v-icon @click="editItem(item)"> mdi-pencil </v-icon>
@@ -245,20 +249,15 @@
         Aun no haz creado eventos!
       </template>
     </v-data-table>
-    <alerts />
   </v-container>
 </template>
 
 <script>
 import apiEvents from "@/api/events/";
 import moment from "moment";
-import Alerts from "@/components/base/Alerts.vue";
 
 export default {
   name: "MyListEvents",
-  components: {
-    Alerts,
-  },
   data() {
     return {
       aviso: false,
@@ -306,10 +305,11 @@ export default {
       menu1: false,
       menu2: false,
       time: null,
-      NameRules: [(v) => !!v || "Este campo es requerido"],
-      DateRules: [(v) => !!v || "Este campo es requerido"],
-      TimeRules: [(v) => !!v || "Este campo es requerido"],
-      DescriptionRules: [(v) => !!v || "Este campo es requerido"],
+      NameRules: [v => !!v || "Este campo es requerido"],
+      DateRules: [v => !!v || "Este campo es requerido"],
+      TimeRules: [v => !!v || "Este campo es requerido"],
+      DescriptionRules: [v => !!v || "Este campo es requerido"],
+      userData: []
     };
   },
   computed: {
@@ -333,7 +333,7 @@ export default {
   },
   methods: {
     initialize() {
-      apiEvents.byUser(this.getUser).then((response) => {
+      apiEvents.byUser().then(response => {
         this.events = response.data;
       });
     },

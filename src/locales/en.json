@@ -38,7 +38,9 @@
   "timeline": "Timeline",
   "typography": "Typography",
   "upgrade": "Upgrade To PRO",
-  "user": "User Profile",
+  "user": "Perfil",
+  "groups": "Grupos",
+  "events": "Eventos",
   "vforms": "Validation Forms",
   "widgets": "Widgets",
   "wizard": "Wizard"

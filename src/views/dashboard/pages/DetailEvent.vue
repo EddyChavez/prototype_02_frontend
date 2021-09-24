@@ -305,9 +305,9 @@ export default {
     };
   },
   computed: {
-    getUser() {
-      return this.$store.getters.getUser.id;
-    },
+    // getUser() {
+    //   return this.$store.getters.getUser.id;
+    // },
     getIdEvent() {
       return this.$route.params.id;
     }
@@ -338,7 +338,7 @@ export default {
       });
     },
     getOrder() {
-      apiOrders.byUser(this.getIdEvent, this.getUser).then(response => {
+      apiOrders.byUser(this.getIdEvent).then(response => {
         this.cart = response.data[0];
       });
     },

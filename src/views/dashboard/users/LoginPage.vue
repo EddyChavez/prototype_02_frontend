@@ -39,6 +39,7 @@
                     :rules="passwordRules"
                     v-model="password"
                     @click:append="show1 = !show1"
+                    @keyup.enter.native="LoginUser()"
                   />
                 </div>
 
@@ -53,10 +54,7 @@
                 </v-col>
 
                 <v-col cols="12" class="text-center">
-                  <!-- <v-hover>
-                    <p @click="Register()">¿Olvidaste tu Contraseña?</p>
-                  </v-hover> -->
-                  <router-link to="/reset-password" tag="button"
+                  <router-link to="/reset-password"
                     ><strong>¿Olvidaste tu Contraseña?</strong></router-link
                   >
                 </v-col>
@@ -138,7 +136,17 @@ export default {
           .login(formData)
           .then(response => {
             setTokenApi(response.data.token);
-            this.$router.push("/");
+
+            apiUsers
+              .retrieve()
+              .then(response => {
+                this.$store.dispatch("retrieveUser", response.data);
+
+                this.$router.push("/");
+              })
+              .catch(error => {
+                console.log("retrieve", error);
+              });
           })
           .catch(error => {
             for (const err in error.response.data) {

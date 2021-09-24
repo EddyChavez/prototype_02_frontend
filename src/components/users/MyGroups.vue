@@ -38,6 +38,21 @@
         <v-container>
           <v-card-title>
             <v-row>
+              <v-col cols="12">
+                <v-tooltip left>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-icon
+                      color="red"
+                      v-bind="attrs"
+                      v-on="on"
+                      @click="leaveGroup(detail.id)"
+                    >
+                      mdi-undo
+                    </v-icon>
+                  </template>
+                  <span>Salir del Grupo</span>
+                </v-tooltip>
+              </v-col>
               <v-col cols="12" md="6">
                 <v-avatar left v-if="detail.avatar">
                   <v-img :src="detail.avatar"></v-img>
@@ -77,25 +92,32 @@
                 <v-list dense>
                   <v-list-item :key="item.id">
                     <v-list-item-avatar>
-                      <v-avatar left v-if="item.avatar">
-                        <v-img :src="item.avatar"></v-img>
+                      <v-avatar left v-if="item.user.avatar">
+                        <v-img :src="item.user.avatar"></v-img>
                       </v-avatar>
                       <v-avatar color="indigo" v-else>
                         <span
-                          v-if="item.get_initials"
+                          v-if="item.user.get_initials"
                           class="white--text text-h5"
-                          >{{ item.get_initials }}</span
+                          >{{ item.user.get_initials }}</span
                         >
                         <v-img v-else src="@/assets/user_group.png"></v-img>
                       </v-avatar>
                     </v-list-item-avatar>
                     <v-list-item-content>
                       <v-list-item-title
-                        v-text="item.get_full_name"
+                        v-text="item.user.get_full_name"
                       ></v-list-item-title>
-                      <v-list-item-subtitle v-text="item.email">
+                      <v-list-item-subtitle v-text="item.user.email">
                       </v-list-item-subtitle>
                     </v-list-item-content>
+                    <v-list-item-icon>
+                      <v-list-item>
+                        <v-chip v-if="item.is_admin" color="green"
+                          >Admin</v-chip
+                        >
+                      </v-list-item>
+                    </v-list-item-icon>
                   </v-list-item>
                 </v-list>
               </template>
@@ -129,14 +151,14 @@ export default {
       list_members: []
     };
   },
-  beforeMount() {
+  created() {
     this.loadGroups();
   },
-  computed: {
-    getUser() {
-      return this.$store.getters.getUser.id;
-    }
-  },
+  // computed: {
+  //   getUser() {
+  //     return this.$store.getters.getUser.id;
+  //   }
+  // },
   methods: {
     showDetail(group) {
       this.dialog = true;
@@ -152,9 +174,16 @@ export default {
         });
     },
     loadGroups() {
-      apiGroups.myGroups(this.getUser).then(response => {
+      apiGroups.myGroups().then(response => {
         this.list_groups = response.data;
       });
+    },
+    leaveGroup(idGroup) {
+      apiGroups.leaveGroup(idGroup).then(response => {
+        this.loadGroups();
+      });
+
+      this.dialog = false;
     }
   }
 };

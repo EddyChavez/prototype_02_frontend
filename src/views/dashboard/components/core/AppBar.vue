@@ -75,15 +75,13 @@
 
       Cerrar Sesion
     </v-btn>
-
-    <alerts />
   </v-app-bar>
 </template>
 
 <script>
 import apiUsers from "@/api/users";
 import { getTokenApi, deleteTokenApi } from "@/api/token";
-import Alerts from "@/components/base/Alerts.vue";
+//import { userMixin } from "@/mixins/users";
 
 // Components
 import { VHover, VListItem } from "vuetify/lib";
@@ -93,7 +91,7 @@ import { mapState, mapMutations, mapGetters, mapActions } from "vuex";
 
 export default {
   name: "DashboardCoreAppBar",
-
+  //mixins: [userMixin],
   components: {
     AppBarItem: {
       render(h) {
@@ -121,8 +119,7 @@ export default {
           }
         });
       }
-    },
-    Alerts
+    }
   },
 
   props: {
@@ -139,49 +136,38 @@ export default {
       "You're now friends with Andrew",
       "Another Notification",
       "Another one"
-    ]
+    ],
+    getUser: []
   }),
-  beforeMount() {
-    const token = getTokenApi();
-
-    if (token) {
-      this.retrieveUser();
-    } else {
-      this.$router.push("/login");
-    }
-  },
-
   computed: {
-    ...mapGetters(["getUser"]),
+    //...mapGetters(["getUser"]),
     ...mapState(["drawer"])
   },
   methods: {
     ...mapMutations({
       setDrawer: "SET_DRAWER"
     }),
-    retrieveUser() {
+    closeSession() {
+      deleteTokenApi();
+      this.$router.push("/login");
+    }
+  },
+  beforeMount() {
+    const user = this.$store.getters.getUser;
+    if (user === null) {
       apiUsers
         .retrieve()
         .then(response => {
           this.$store.dispatch("retrieveUser", response.data);
           sessionStorage.setItem('IdUser', response.data.id);
           sessionStorage.setItem('EmailUser', response.data.email);
+          this.getUser = response.data;
         })
         .catch(error => {
-          this.closeSession();
+          this.$router.push("/login");
         });
-    },
-    closeSession() {
-      deleteTokenApi();
-      this.$router.push("/login");
-      // apiUsers
-      //   .logout()
-      //   .then(response => {
-      //     deleteTokenApi();
-      //   })
-      //   .catch(error => {
-      //     console.error();
-      //   });
+    } else {
+      this.getUser = user;
     }
   }
 };

@@ -3,8 +3,8 @@ import { API_URL } from "@/utils/constants.js";
 import axios from "axios";
 
 const apiOrders = {
-  byUser: function(idEvent, idUser) {
-    return axios.get(`${API_URL}/api/orders/by-user/${idEvent}/${idUser}`, {
+  byUser: function(idEvent) {
+    return axios.get(`${API_URL}/api/orders/by-user/${idEvent}/`, {
       headers: {
         Authorization: `Token ${getTokenApi()}`
       }
