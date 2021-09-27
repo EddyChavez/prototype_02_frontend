@@ -202,14 +202,14 @@ export default {
       return this.$route.params.id;
     }
   },
-  mounted: function() {
+  created: function() {
     this.retrieveStatus();
     this.getOrder();
   },
   methods: {
     retrieveStatus() {
       apiEvents.getStatus(this.idEvent).then(response => {
-        this.status = response.data.data;
+        this.status = response.data.status;
       });
     },
     getOrder() {

@@ -102,6 +102,8 @@ export default {
     },
     getColor(status) {
       switch (status) {
+        case "NUEVO":
+          return "green";
         case "EN PROCESO":
           return "orange";
         case "LLEGO PEDIDO":

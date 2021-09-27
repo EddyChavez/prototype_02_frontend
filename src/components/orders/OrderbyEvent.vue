@@ -444,8 +444,7 @@ export default {
       ],
       content: "",
       progress_value: 0,
-      status: "",
-      name: ""
+      status: ""
     };
   },
   watch: {
@@ -497,7 +496,7 @@ export default {
           this.loadOrder();
         });
 
-        this.dialog = false;
+        this.clearForm();
       }
     },
     loadOrder: function() {
@@ -549,12 +548,11 @@ export default {
       this.email = item.user.email;
     },
     clearForm() {
+      this.$refs.form.reset();
       this.dialog = false;
 
       this.money = 0;
       this.remaining = 0;
-
-      this.$refs.form.reset();
     },
     generateReport() {
       domtoimage.toPng(this.$refs.content).then(function(dataUrl) {
