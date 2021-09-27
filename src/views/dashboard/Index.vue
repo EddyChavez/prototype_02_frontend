@@ -25,7 +25,7 @@ export default {
     Alerts: () => import("@/components/base/Alerts")
   },
   data: () => ({
-    expandOnHover: false
-  })
+    expandOnHover: false,
+  }),
 };
 </script>

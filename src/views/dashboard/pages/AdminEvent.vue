@@ -17,6 +17,23 @@
         </v-card-text>
       </v-col>
     </v-row>
+    <v-dialog v-model="aviso" max-width="300px">
+      <v-card elevation="24">
+        <v-card-title class="text-h5">Aviso</v-card-title>
+        <v-card-text align="center" justify="center"  class="red--text"
+          >¡No puedes realizar esta acción!</v-card-text
+        >
+        <v-card-actions>
+          <v-spacer></v-spacer>
+
+          <!-- <v-btn color="blue darken-1" text @click="closeDelete"
+                  >Cancel</v-btn
+                > -->
+          <v-btn color="blue darken-1" text @click="closeAviso()">OK</v-btn>
+          <v-spacer></v-spacer>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -31,12 +48,13 @@ export default {
   components: {
     CardEvent,
     EditEvent,
-    Participants
+    Participants,
   },
   data() {
     return {
+      aviso:false,
       showUsers: false,
-      button_text: "Agregar Participantes"
+      button_text: "Agregar Participantes",
     };
   },
   computed: {
@@ -45,45 +63,60 @@ export default {
     },
     getUser() {
       return this.$store.getters.getUser.id;
-    }
+    },
   },
-  // mounted() {
-  //   let flag = false;
-  //   apiEvents
-  //     .validate_permission(this.idEvent, 1)
-  //     .then(response => {
-  //       flag = response.data;
-  //     })
-  //     .catch(error => {
-  //       flag = false;
-  //     });
-  //   if (flag === false) {
-  //     console.log("No tienes permiso para editar este evento!");
-  //     this.$router.push({
-  //       name: "Mis Eventos"
-  //     });
-  //   }
-  // },
-  //beforeMount() {
-  // console.log("preparando...");
-  // console.log(this.idEvent);
-  // console.log(this.getUser);
-  // let flag = false;
-  // apiEvents
-  //   .validate_permission(this.idEvent, 1)
-  //   .then(response => {
-  //     flag = response.data;
-  //   })
-  //   .catch(error => {
-  //     flag = false;
-  //   });
-  // if (flag === false) {
-  //   console.log("No tienes permiso para editar este evento!");
-  //   this.$router.push({
-  //     name: "Mis Eventos"
-  //   });
-  // }
-  //},
+  /*  mounted() {
+    let flag = false;
+    apiEvents
+      .validate_permission(this.idEvent, 1)
+      .then((response) => {
+        debugger;
+        flag = response.data.data;
+        if (flag === false) {
+          debugger;
+          console.log("No tienes permiso para editar este evento!");
+          this.$router.push({
+            name: "Mis Eventos",
+          });
+        }
+      })
+      .catch((error) => {
+        flag = false;
+      });
+  }, */
+  beforeMount() {
+    let flag = false;
+    apiEvents
+      .validate_permission(this.idEvent, this.getUser)
+      .then((response) => {
+        flag = response.data.data;
+        if (flag === false) {
+          //console.log("No tienes permiso para editar este evento!");
+          this.aviso = true;          
+        }
+      })
+      .catch((error) => {
+        flag = false;
+      });
+    /* console.log("preparando...");
+   console.log(this.idEvent);
+   console.log(this.getUser);
+   let flag = false;
+   apiEvents
+     .validate_permission(this.idEvent, 1)
+     .then(response => {
+       flag = response.data;
+     })
+     .catch(error => {
+       flag = false;
+     });
+   if (flag === false) {
+     console.log("No tienes permiso para editar este evento!");
+     this.$router.push({
+       name: "Mis Eventos"
+     });
+   } */
+  },
   methods: {
     addParticipants() {
       this.showUsers = !this.showUsers;
@@ -91,8 +124,14 @@ export default {
       this.button_text = this.showUsers
         ? "Editar Detalle"
         : "Agregar Participantes";
-    }
-  }
+    },    
+    closeAviso() {
+      this.aviso = false;
+      this.$router.push({
+            name: "Mis Eventos",
+          });
+    },
+  },
 };
 </script>
 

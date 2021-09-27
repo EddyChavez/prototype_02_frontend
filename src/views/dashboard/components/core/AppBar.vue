@@ -159,6 +159,8 @@ export default {
         .retrieve()
         .then(response => {
           this.$store.dispatch("retrieveUser", response.data);
+          sessionStorage.setItem('IdUser', response.data.id);
+          sessionStorage.setItem('EmailUser', response.data.email);
           this.getUser = response.data;
         })
         .catch(error => {

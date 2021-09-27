@@ -388,10 +388,13 @@
 <script>
 import apiOrders from "@/api/orders";
 import apiEvents from "@/api/events";
+import apiGroups from "@/api/groups/";
 
 import moment from "moment";
 import jsPDF from "jspdf";
 import domtoimage from "dom-to-image";
+
+/* const usuarios = [] */
 
 export default {
   name: "OrderbyEvent",
@@ -444,7 +447,13 @@ export default {
       ],
       content: "",
       progress_value: 0,
+<<<<<<< HEAD
       status: ""
+=======
+      status: "",
+      list_users: []
+      name: ""
+>>>>>>> ad16ef0e2d250292516b3f57f41e29cf21a00626
     };
   },
   watch: {
@@ -509,7 +518,12 @@ export default {
         let count = [];
         let total = [];
         let paid_out = [];
+        this.list_users = [];
 
+        response.data.forEach(dato =>{
+          this.list_users.push(dato.user)
+        });
+        console.log(this.list_users)
         Object.entries(this.list_orders).forEach(([key, val]) => {
           count.push(val.quantity);
           total.push(parseFloat(val.amount));
@@ -584,9 +598,53 @@ export default {
     deliveryStatus() {
       if (this.delivery == "success") {
         this.updateStatus("LLEGO PEDIDO");
-
         this.deliveryDialog = false;
-        //this.loadOrder();
+        this.loadOrder();
+        //
+        let formData = new FormData();
+
+      console.log(this.members);
+
+      formData.append("idEvent", this.idEvent);
+      this.list_users.forEach(item => {
+        formData.append("listEmails", item.email);
+      });
+        apiGroups
+          .sendEmailDelivered(formData)
+          .then(response => {
+            this.dialogDelete = false;
+
+            let notification = {
+              snackbar: true,
+              direction: "top center",
+              msg: response.data.message,
+              important: "",
+              color: "success"
+            };
+            this.$store.dispatch("showNotification", notification);
+
+            this.loading = true;
+            setTimeout(() => (this.loading = false), 3000);
+
+            setTimeout(() => (this.redirect = true), 3000);
+
+            if (this.redirect) {
+              this.$router.push({
+                name: "Eventos"
+              });
+            }
+          })
+          .catch(error => {
+            let notification = {
+              snackbar: true,
+              direction: "top center",
+              msg: error,
+              important: "",
+              color: "error"
+            };
+            this.$store.dispatch("showNotification", notification);
+            this.dialogDelete = false;
+          });        
       }
     },
     closeStatus() {
