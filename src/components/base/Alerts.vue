@@ -2,11 +2,12 @@
   <base-material-snackbar
     v-if="getNofitication"
     v-model="getNofitication.snackbar"
-    :type="getNofitication.color"
+    :color="getNofitication.color"
     v-bind="{
       [parsedDirection[0]]: true,
       [parsedDirection[1]]: true
     }"
+    border="botton"
   >
     <span class="font-weight-bold"
       >&nbsp;{{ getNofitication.important }}&nbsp;</span

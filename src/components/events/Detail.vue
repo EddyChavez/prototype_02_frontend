@@ -9,7 +9,7 @@
         <base-material-card>
           <template v-slot:heading>
             <div v-if="showForm" class="display-2 font-weight-light">
-              {{ event.name }} (Agrega informacion detallada de tu evento)
+              (Agrega informacion detallada de tu evento)
             </div>
             <div v-else class="display-2 font-weight-light">
               {{ event.name }}

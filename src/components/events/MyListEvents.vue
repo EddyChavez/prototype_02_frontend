@@ -1,222 +1,230 @@
 <template>
   <v-container id="dashboard" fluid tag="section">
-    <v-data-table
-      :headers="headers"
-      :items="events"
-      sort-by="calories"
-      class="elevation-1"
-    >
-      <template v-slot:top>
-        <v-toolbar flat>
-          <v-toolbar-title></v-toolbar-title>
+    <v-sheet elevation="10">
+      <v-data-table
+        :headers="headers"
+        :items="events"
+        sort-by="calories"
+        class="elevation-1"
+      >
+        <template v-slot:top>
+          <v-toolbar flat>
+            <v-toolbar-title></v-toolbar-title>
 
-          <v-spacer></v-spacer>
-          <v-dialog v-model="dialog" max-width="500px">
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">
-                <v-icon left>mdi-plus</v-icon> Nuevo Evento
-              </v-btn>
-            </template>
-            <v-card>
-              <v-card-title>
-                <span class="text-h5">{{ formTitle }}</span>
-              </v-card-title>
-
-              <v-card-text>
-                <v-form
-                  ref="form"
-                  v-model="valid"
-                  lazy-validation
-                  enctype="multipart/form-data"
+            <v-spacer></v-spacer>
+            <v-dialog v-model="dialog" max-width="500px">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  color="primary"
+                  dark
+                  class="mb-2"
+                  v-bind="attrs"
+                  v-on="on"
                 >
-                  <v-container>
-                    <v-row>
-                      <v-col cols="12" sm="12" md="12">
-                        <v-text-field
-                          v-model="editedItem.name"
-                          label="Nombre..."
-                          prepend-icon="mdi-calendar-text"
-                          :rules="NameRules"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" sm="6" md="6">
-                        <v-menu
-                          v-model="menu1"
-                          :close-on-content-click="false"
-                          :nudge-right="40"
-                          transition="scale-transition"
-                          offset-y
-                          min-width="auto"
-                        >
-                          <template v-slot:activator="{ on, attrs }">
-                            <v-text-field
-                              v-model="editedItem.date_start"
-                              label="Fecha Inicio"
-                              prepend-icon="mdi-calendar-edit"
-                              readonly
-                              v-bind="attrs"
-                              v-on="on"
-                              :rules="DateRules"
-                            ></v-text-field>
-                          </template>
-                          <v-date-picker
-                            v-model="editedItem.date_start"
-                            @input="menu1 = false"
-                            locale="es"
-                          ></v-date-picker>
-                        </v-menu>
-                      </v-col>
-                      <v-col cols="12" sm="6" md="6">
-                        <v-menu
-                          ref="menu"
-                          v-model="menu2"
-                          :close-on-content-click="false"
-                          :nudge-right="40"
-                          :return-value.sync="time"
-                          transition="scale-transition"
-                          offset-y
-                          max-width="290px"
-                          min-width="290px"
-                        >
-                          <template v-slot:activator="{ on, attrs }">
-                            <v-text-field
-                              v-model="editedItem.hour_start"
-                              label="Hora de Inicio"
-                              prepend-icon="mdi-clock-time-four-outline"
-                              readonly
-                              v-bind="attrs"
-                              v-on="on"
-                              :rules="TimeRules"
-                            ></v-text-field>
-                          </template>
-                          <v-time-picker
-                            v-if="menu2"
-                            v-model="editedItem.hour_start"
-                            full-width
-                            @click:minute="
-                              $refs.menu.save(editedItem.hour_start)
-                            "
-                          ></v-time-picker>
-                        </v-menu>
-                      </v-col>
+                  <v-icon left>mdi-plus</v-icon> Nuevo Evento
+                </v-btn>
+              </template>
+              <v-card>
+                <v-card-title>
+                  <span class="text-h5">{{ formTitle }}</span>
+                </v-card-title>
 
-                      <v-col cols="12" sm="12" md="12">
-                        <v-textarea
-                          v-model="editedItem.description"
-                          label="Descripcion corta"
-                          :rules="DescriptionRules"
-                          prepend-icon="mdi-clipboard-text"
-                        >
-                        </v-textarea>
-                      </v-col>
-                      <v-col cols="12" sm="12" md="12">
-                        <v-row v-if="imageSelected" justify="center">
-                          <v-avatar size="80">
-                            <img alt="user" :src="imageSelected" />
-                          </v-avatar>
-                          <v-btn
-                            v-if="imageSelected"
-                            class="ma-5"
-                            outlined
-                            color="red"
-                            fab
-                            small
-                            @click="removeImage()"
+                <v-card-text>
+                  <v-form
+                    ref="form"
+                    v-model="valid"
+                    lazy-validation
+                    enctype="multipart/form-data"
+                  >
+                    <v-container>
+                      <v-row>
+                        <v-col cols="12" sm="12" md="12">
+                          <v-text-field
+                            v-model="editedItem.name"
+                            label="Nombre..."
+                            prepend-icon="mdi-calendar-text"
+                            :rules="NameRules"
+                          ></v-text-field>
+                        </v-col>
+                        <v-col cols="12" sm="6" md="6">
+                          <v-menu
+                            v-model="menu1"
+                            :close-on-content-click="false"
+                            :nudge-right="40"
+                            transition="scale-transition"
+                            offset-y
+                            min-width="auto"
                           >
-                            <v-icon small> mdi-close </v-icon>
-                          </v-btn>
-                        </v-row>
+                            <template v-slot:activator="{ on, attrs }">
+                              <v-text-field
+                                v-model="editedItem.date_start"
+                                label="Fecha Inicio"
+                                prepend-icon="mdi-calendar-edit"
+                                readonly
+                                v-bind="attrs"
+                                v-on="on"
+                                :rules="DateRules"
+                              ></v-text-field>
+                            </template>
+                            <v-date-picker
+                              v-model="editedItem.date_start"
+                              @input="menu1 = false"
+                              locale="es"
+                            ></v-date-picker>
+                          </v-menu>
+                        </v-col>
+                        <v-col cols="12" sm="6" md="6">
+                          <v-menu
+                            ref="menu"
+                            v-model="menu2"
+                            :close-on-content-click="false"
+                            :nudge-right="40"
+                            :return-value.sync="time"
+                            transition="scale-transition"
+                            offset-y
+                            max-width="290px"
+                            min-width="290px"
+                          >
+                            <template v-slot:activator="{ on, attrs }">
+                              <v-text-field
+                                v-model="editedItem.hour_start"
+                                label="Hora de Inicio"
+                                prepend-icon="mdi-clock-time-four-outline"
+                                readonly
+                                v-bind="attrs"
+                                v-on="on"
+                                :rules="TimeRules"
+                              ></v-text-field>
+                            </template>
+                            <v-time-picker
+                              v-if="menu2"
+                              v-model="editedItem.hour_start"
+                              full-width
+                              @click:minute="
+                                $refs.menu.save(editedItem.hour_start)
+                              "
+                            ></v-time-picker>
+                          </v-menu>
+                        </v-col>
 
-                        <v-file-input
-                          accept="image/*"
-                          label="Imagen de tu evento"
-                          v-model="newImage"
-                          @change="onFileSelected()"
-                          prepend-icon="mdi-image-multiple"
-                        ></v-file-input>
-                      </v-col>
-                    </v-row>
-                  </v-container>
-                </v-form>
-              </v-card-text>
+                        <v-col cols="12" sm="12" md="12">
+                          <v-textarea
+                            v-model="editedItem.description"
+                            label="Descripcion corta"
+                            :rules="DescriptionRules"
+                            prepend-icon="mdi-clipboard-text"
+                          >
+                          </v-textarea>
+                        </v-col>
+                        <v-col cols="12" sm="12" md="12">
+                          <v-row v-if="imageSelected" justify="center">
+                            <v-avatar size="80">
+                              <img alt="user" :src="imageSelected" />
+                            </v-avatar>
+                            <v-btn
+                              v-if="imageSelected"
+                              class="ma-5"
+                              outlined
+                              color="red"
+                              fab
+                              small
+                              @click="removeImage()"
+                            >
+                              <v-icon small> mdi-close </v-icon>
+                            </v-btn>
+                          </v-row>
 
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="blue darken-1" text @click="close">
-                  Cancelar
-                </v-btn>
-                <v-btn color="blue darken-1" text @click="save">
-                  Guardar
-                </v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
-          <v-dialog v-model="dialogDelete" max-width="500px">
-            <v-card>
-              <v-card-title class="text-h5"
-                >Seguro que desea eliminar este evento?</v-card-title
-              >
-              <v-card-actions>
-                <v-spacer></v-spacer>
+                          <v-file-input
+                            accept="image/*"
+                            label="Imagen de tu evento"
+                            v-model="newImage"
+                            @change="onFileSelected()"
+                            prepend-icon="mdi-image-multiple"
+                          ></v-file-input>
+                        </v-col>
+                      </v-row>
+                    </v-container>
+                  </v-form>
+                </v-card-text>
 
-                <v-btn color="blue darken-1" text @click="closeDelete"
-                  >Cancel</v-btn
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn color="blue darken-1" text @click="close">
+                    Cancelar
+                  </v-btn>
+                  <v-btn color="blue darken-1" text @click="save">
+                    Guardar
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+            <v-dialog v-model="dialogDelete" max-width="500px">
+              <v-card>
+                <v-card-title class="text-h5"
+                  >Seguro que desea eliminar este evento?</v-card-title
                 >
-                <v-btn color="blue darken-1" text @click="deleteItemConfirm"
-                  >OK</v-btn
-                >
-                <v-spacer></v-spacer>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
-          <v-dialog v-model="aviso" max-width="300px">
-            <v-card elevation="24">
-              <v-card-title class="text-h5">Aviso</v-card-title>
-              <v-card-text align="center" justify="center">¡No puedes realizar esta acción!</v-card-text>
-              <v-card-actions>
-                <v-spacer></v-spacer>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
 
-                <!-- <v-btn color="blue darken-1" text @click="closeDelete"
+                  <v-btn color="blue darken-1" text @click="closeDelete"
+                    >Cancel</v-btn
+                  >
+                  <v-btn color="blue darken-1" text @click="deleteItemConfirm"
+                    >OK</v-btn
+                  >
+                  <v-spacer></v-spacer>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+            <v-dialog v-model="aviso" max-width="300px">
+              <v-card elevation="24">
+                <v-card-title class="text-h5">Aviso</v-card-title>
+                <v-card-text align="center" justify="center"
+                  >¡No puedes realizar esta acción!</v-card-text
+                >
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+
+                  <!-- <v-btn color="blue darken-1" text @click="closeDelete"
                   >Cancel</v-btn
                 > -->
-                <v-btn color="blue darken-1" text @click="closeAviso()"
-                  >OK</v-btn
-                >
-                <v-spacer></v-spacer>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
-        </v-toolbar>
-      </template>
-      <template v-slot:item.name="{ item }">
-        <!-- <router-link
-          :to="{ name: 'Administrar Evento', params: { id: item.id } }"
-          >{{ item.name }}
-        </router-link> -->
-        <v-icon size="30" @click="editEvent(item)">
-          mdi-clipboard-edit-outline
-        </v-icon>
-      </template>
-      <template v-slot:item.status="{ item }">
-        <v-chip :color="getColor(item.status)" dark>
-          {{ item.status }}
-        </v-chip>
-      </template>
-      <template v-slot:item.date_start="{ item }">
-        {{ frontEndDateFormat(item.date_start) }}
-      </template>
-      <template v-slot:item.image="{ item }">
-        <v-avatar size="40">
-          <img alt="user" :src="item.image" />
-        </v-avatar>
-        <v-avatar v-else size="56">
-          <img alt="user" src="@/assets/events2.jpg" />
-        </v-avatar>
-      </template>
-      <template v-slot:item.actions="{ item }">
-        <v-icon @click="editItem(item)"> mdi-pencil </v-icon>
-        <v-icon @click="deleteItem(item)"> mdi-close </v-icon>
-        <!-- <v-btn
+                  <v-btn color="blue darken-1" text @click="closeAviso()"
+                    >OK</v-btn
+                  >
+                  <v-spacer></v-spacer>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+          </v-toolbar>
+        </template>
+        <template v-slot:item.icon="{ item }">
+          <v-icon size="30" @click="editEvent(item)">
+            mdi-clipboard-edit-outline
+          </v-icon>
+        </template>
+        <template v-slot:item.name="{ item }">
+          <strong>{{ item.name }}</strong>
+        </template>
+        <template v-slot:item.status="{ item }">
+          <v-chip :color="getColor(item.status)" dark>
+            {{ item.status }}
+          </v-chip>
+        </template>
+        <template v-slot:item.date_start="{ item }">
+          {{ frontEndDateFormat(item.date_start) }}
+        </template>
+        <template v-slot:item.image="{ item }">
+          <v-avatar v-if="item.image" size="56">
+            <img alt="user" :src="item.image" />
+          </v-avatar>
+          <v-avatar v-else size="56">
+            <img alt="user" src="@/assets/events2.jpg" />
+          </v-avatar>
+        </template>
+        <template v-slot:item.actions="{ item }">
+          <v-icon @click="editItem(item)"> mdi-pencil </v-icon>
+          <v-icon @click="deleteItem(item)"> mdi-close </v-icon>
+          <!-- <v-btn
           class="mr-2"
           outlined
           color="indigo"
@@ -229,7 +237,7 @@
           </v-icon>
         </v-btn> -->
 
-        <!-- <v-btn
+          <!-- <v-btn
           class="mr-2"
           outlined
           color="red"
@@ -241,14 +249,15 @@
             mdi-delete
           </v-icon>
         </v-btn> -->
-      </template>
-      <template v-slot:no-data>
-        <!-- <v-btn color="primary" @click="initialize">
+        </template>
+        <template v-slot:no-data>
+          <!-- <v-btn color="primary" @click="initialize">
           Reset
         </v-btn> -->
-        Aun no haz creado eventos!
-      </template>
-    </v-data-table>
+          Aun no haz creado eventos!
+        </template>
+      </v-data-table>
+    </v-sheet>
   </v-container>
 </template>
 
@@ -266,17 +275,23 @@ export default {
       dialogDelete: false,
       headers: [
         {
-          text: "Nombre",
+          text: "Editar",
           align: "start",
           sortable: false,
-          value: "name",
+          value: "icon"
+        },
+        {
+          text: "Nombre",
+          //align: "start",
+          sortable: false,
+          value: "name"
         },
         { text: "Descripcion", value: "description" },
         { text: "Fecha Inicio", value: "date_start" },
         { text: "Hora Inicio", value: "hour_start" },
         { text: "Estatus", value: "status" },
         { text: "Imagen", value: "image", sortable: false },
-        { text: "Acciones", value: "actions", sortable: false },
+        { text: "Acciones", value: "actions", sortable: false }
       ],
       events: [],
       editedIndex: -1,
@@ -287,7 +302,7 @@ export default {
         hour_start: "",
         status: "NUEVO",
         create_by: "",
-        image: null,
+        image: null
       },
       defaultItem: {
         name: "",
@@ -296,7 +311,7 @@ export default {
         hour_start: "",
         status: "NUEVO",
         create_by: "",
-        image: null,
+        image: null
       },
       imageSelected: null,
       remove_image: false,
@@ -318,7 +333,7 @@ export default {
     },
     formTitle() {
       return this.editedIndex === -1 ? "Nuevo Evento" : "Editar Evento";
-    },
+    }
   },
   watch: {
     dialog(val) {
@@ -326,7 +341,7 @@ export default {
     },
     dialogDelete(val) {
       val || this.closeDelete();
-    },
+    }
   },
   created() {
     this.initialize();
@@ -347,22 +362,22 @@ export default {
       let flag = false;
       apiEvents
         .validate_permission(item.id, this.getUser)
-        .then((response) => {
+        .then(response => {
           flag = response.data.data;
           if (flag === false) {
             //console.log("No tienes permiso para editar este evento!");
             this.aviso = true;
             this.$router.push({
-              name: "Mis Eventos",
+              name: "Mis Eventos"
             });
           } else {
             this.$router.push({
               name: "Administrar Evento",
-              params: { id: item.id },
+              params: { id: item.id }
             });
           }
         })
-        .catch((error) => {
+        .catch(error => {
           flag = false;
         });
 
@@ -392,15 +407,15 @@ export default {
         snackbar: true,
         direction: "top center",
         msg: "Evento Eliminado Exitosamente!",
-        color: "success",
+        color: "success"
       };
 
       apiEvents
         .delete(idEvent)
-        .then((response) => {
+        .then(response => {
           this.$store.dispatch("showNotification", notification);
         })
-        .catch((error) => {
+        .catch(error => {
           console.log(error);
         });
 
@@ -447,7 +462,7 @@ export default {
             snackbar: true,
             direction: "top center",
             msg: "Evento Actualizado Exitosamente!",
-            color: "success",
+            color: "success"
           };
 
           formDataEdit.append("name", this.editedItem.name);
@@ -466,12 +481,12 @@ export default {
 
           apiEvents
             .update(idEvent, formDataEdit)
-            .then((response) => {
+            .then(response => {
               this.initialize();
 
               this.$store.dispatch("showNotification", notification);
             })
-            .catch((error) => {
+            .catch(error => {
               console.log(error);
             });
 
@@ -497,17 +512,17 @@ export default {
             snackbar: true,
             direction: "top center",
             msg: "Evento Creado Exitosamente!",
-            color: "success",
+            color: "success"
           };
 
           apiEvents
             .create(formData)
-            .then((response) => {
+            .then(response => {
               this.events.push(response.data);
 
               this.$store.dispatch("showNotification", notification);
             })
-            .catch((error) => {
+            .catch(error => {
               console.log(error);
             });
 
@@ -527,10 +542,10 @@ export default {
           return "red";
       }
     },
-    frontEndDateFormat: function (date) {
+    frontEndDateFormat: function(date) {
       return moment(date, "YYYY-MM-DD").format("DD/MM/YYYY");
-    },
-  },
+    }
+  }
 };
 </script>
 

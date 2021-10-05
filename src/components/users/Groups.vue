@@ -131,7 +131,7 @@
           <v-icon>
             mdi-plus
           </v-icon>
-          Agregar
+          Crear Grupo
         </v-btn>
         <v-btn
           v-if="!showAdd"
@@ -413,6 +413,17 @@ export default {
         this.members.push(user);
         this.group.members.push(user.id);
         this.count_participants = this.group.members.length;
+      } else {
+        let notification = {
+          snackbar: true,
+          direction: "top center",
+          important: "Ya agregado: ",
+          msg: user.email,
+
+          color: "info"
+        };
+
+        this.$store.dispatch("showNotification", notification);
       }
     },
     RetrieveGroups() {
@@ -430,15 +441,9 @@ export default {
       }
     },
     addGroup() {
-      if (this.$refs.form.validate()) {
+      if (this.$refs.form.validate() & (this.count_participants > 0)) {
         this.isUpdating = true;
 
-        let notification = {
-          snackbar: true,
-          direction: "top center",
-          msg: "Grupo Creado Exitosamente!",
-          color: "success"
-        };
         let formData = new FormData();
 
         formData.append("name", this.group.name);
@@ -456,19 +461,32 @@ export default {
         apiGroups
           .addGroup(formData)
           .then(response => {
+            let notification = {
+              snackbar: true,
+              direction: "top center",
+              msg: response.data.success,
+              color: "success"
+            };
+
             this.RetrieveGroups();
             this.reload = true;
 
-            this.$store.dispatch("showNotification", notification);
             this.$store.dispatch("reload", true);
+            this.$store.dispatch("showNotification", notification);
+
+            this.clearData();
+            this.$refs.form.resetValidation();
           })
           .catch(error => {
-            console.log(error);
+            let error_msg = {
+              snackbar: true,
+              direction: "top center",
+              msg: error.response.data.error,
+              color: "error"
+            };
+
+            this.$store.dispatch("showNotification", error_msg);
           });
-
-        this.clearData();
-
-        this.$refs.form.resetValidation();
       }
     },
     AssignPermission(group) {
@@ -554,7 +572,7 @@ export default {
       this.$refs.form.resetValidation();
     },
     saveGroup(idGroup) {
-      if (this.$refs.form.validate()) {
+      if (this.$refs.form.validate() & (this.count_participants > 0)) {
         this.isUpdating = true;
 
         let notification = {

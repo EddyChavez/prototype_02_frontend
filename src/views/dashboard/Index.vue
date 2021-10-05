@@ -1,14 +1,14 @@
 <template>
   <v-app>
-    <alerts />
-
     <dashboard-core-app-bar />
 
     <dashboard-core-drawer />
 
+    <alerts />
+
     <dashboard-core-view />
 
-    <dashboard-core-settings />
+    <!-- <dashboard-core-settings /> -->
   </v-app>
 </template>
 
@@ -25,7 +25,7 @@ export default {
     Alerts: () => import("@/components/base/Alerts")
   },
   data: () => ({
-    expandOnHover: false,
-  }),
+    expandOnHover: false
+  })
 };
 </script>

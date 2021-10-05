@@ -393,6 +393,16 @@ export default {
       if (index == -1) {
         this.members.push(user);
         this.count_participants = this.members.length;
+      } else {
+        let notification = {
+          snackbar: true,
+          direction: "top center",
+          important: "Ya agregado: ",
+          msg: user.email,
+          color: "info"
+        };
+
+        this.$store.dispatch("showNotification", notification);
       }
     },
     SearchGroups(kword) {

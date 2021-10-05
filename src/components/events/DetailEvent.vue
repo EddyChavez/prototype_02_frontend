@@ -3,7 +3,7 @@
     <base-material-card>
       <template v-slot:heading>
         <div class="display-2 font-weight-light">
-          {{ event.name }}
+          Detalle
         </div>
       </template>
 
