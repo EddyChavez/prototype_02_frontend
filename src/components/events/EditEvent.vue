@@ -6,7 +6,7 @@
         (Agrega informacion detallada de tu evento)
       </div>
       <div v-else class="display-2 font-weight-light">
-        <!-- {{ event.name }} -->
+        Detalle
       </div>
     </template>
 

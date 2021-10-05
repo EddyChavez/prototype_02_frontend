@@ -516,10 +516,10 @@ export default {
         let paid_out = [];
         this.list_users = [];
 
-        response.data.forEach(dato =>{
-          this.list_users.push(dato.user)
+        response.data.forEach(dato => {
+          this.list_users.push(dato.user);
         });
-        console.log(this.list_users)
+        console.log(this.list_users);
         Object.entries(this.list_orders).forEach(([key, val]) => {
           count.push(val.quantity);
           total.push(parseFloat(val.amount));
@@ -593,7 +593,7 @@ export default {
           format: [612, 792] // tamaño carta
         });
 
-        doc.addImage(img, "JPEG", 10, 25);
+        doc.addImage(img, "JPEG", 10, 25); // eje x y
         const date = new Date();
         const filename = "pedido.pdf";
         doc.save(filename);
@@ -616,12 +616,12 @@ export default {
         //
         let formData = new FormData();
 
-      console.log(this.members);
+        console.log(this.members);
 
-      formData.append("idEvent", this.idEvent);
-      this.list_users.forEach(item => {
-        formData.append("listEmails", item.email);
-      });
+        formData.append("idEvent", this.idEvent);
+        this.list_users.forEach(item => {
+          formData.append("listEmails", item.email);
+        });
         apiGroups
           .sendEmailDelivered(formData)
           .then(response => {
@@ -657,7 +657,7 @@ export default {
             };
             this.$store.dispatch("showNotification", notification);
             this.dialogDelete = false;
-          });        
+          });
       }
     },
     closeStatus() {

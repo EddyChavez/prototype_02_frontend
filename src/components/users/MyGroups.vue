@@ -45,7 +45,7 @@
                       color="red"
                       v-bind="attrs"
                       v-on="on"
-                      @click="leave(detail.id)"
+                      @click="dialogLeave = true"
                     >
                       mdi-undo
                     </v-icon>
@@ -133,6 +133,28 @@
         </v-container>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="dialogLeave" max-width="500px">
+      <v-card>
+        <v-card-title class="text-h4"
+          ><strong>Desea salir del grupo?</strong></v-card-title
+        >
+
+        <v-card-text>
+          <div class="text--primary text-center">
+            Solo el administrador podra volver a agregarlo
+          </div>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+
+          <v-btn color="blue darken-1" text @click="dialogLeave = false"
+            >Cancelar</v-btn
+          >
+          <v-btn color="blue darken-1" text @click="leave(detail.id)">OK</v-btn>
+          <v-spacer></v-spacer>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </base-material-card>
 </template>
 
@@ -148,7 +170,8 @@ export default {
       selectedItem: -1,
       list_groups: [],
       detail: [],
-      list_members: []
+      list_members: [],
+      dialogLeave: false
     };
   },
   created() {
@@ -189,16 +212,25 @@ export default {
     leave(idGroup) {
       let idUser = this.$store.getters.getUser.id;
 
+      let notification = {
+        snackbar: true,
+        direction: "top center",
+        msg: "Saliste del grupo!",
+        color: "success"
+      };
+
       apiGroups
         .leaveGroup(idGroup, idUser)
         .then(response => {
           this.loadGroups();
+          this.$store.dispatch("showNotification", notification);
         })
         .catch(error => {
           console.log(error);
         });
 
       this.dialog = false;
+      this.dialogLeave = false;
     }
   }
 };
