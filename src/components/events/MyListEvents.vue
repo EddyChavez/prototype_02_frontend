@@ -206,7 +206,7 @@
         {{ frontEndDateFormat(item.date_start) }}
       </template>
       <template v-slot:item.image="{ item }">
-        <v-avatar size="40">
+        <v-avatar v-if="item.image" size="40">
           <img alt="user" :src="item.image" />
         </v-avatar>
         <v-avatar v-else size="56">

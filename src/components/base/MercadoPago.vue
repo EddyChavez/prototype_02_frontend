@@ -42,7 +42,6 @@ export default {
     return {};
   },
   mounted() {
-    debugger;
     this.$loadScript("https://sdk.mercadopago.com/js/v2")
       .then(() => {
         // Agregamos Credenciales

@@ -126,7 +126,7 @@
                 <v-row>
                   <v-col cols="12" md="10">
                     <div class="display-2 font-weight-light">
-                      {{ name }}
+                      {{ nameEvent }}
                     </div>
                   </v-col>
                   <v-col cols="12" md="2" class="text-center">
@@ -447,13 +447,9 @@ export default {
       ],
       content: "",
       progress_value: 0,
-<<<<<<< HEAD
-      status: ""
-=======
       status: "",
-      list_users: []
-      name: ""
->>>>>>> ad16ef0e2d250292516b3f57f41e29cf21a00626
+      list_users: [],
+      nameEvent : ""
     };
   },
   watch: {
@@ -474,7 +470,7 @@ export default {
     retrieveStatus() {
       apiEvents.getStatus(this.idEvent).then(response => {
         this.status = response.data.status;
-        this.name = response.data.name;
+        this.nameEvent = response.data.name;
 
         if (this.status == "CONCLUIDO") {
           this.disable_delivery = true;
@@ -550,6 +546,19 @@ export default {
       return moment(date, "YYYY-MM-DD").format("DD/MM/YYYY");
     },
     showPayment(item) {
+      var valido = false;
+      let notification = {
+          snackbar: true,
+          direction: "top center",
+          msg: "Error: No cuentas con los permisos suficientes",
+          color: "error"
+        };
+      this.list_users.forEach(element => {
+        
+        valido = sessionStorage.getItem('IdUser') == element.id ? true : false;
+      });
+
+      if(sessionStorage.getItem('SuperUser') == true &&  valido){
       this.dialog = true;
 
       this.money = 0;
@@ -560,6 +569,10 @@ export default {
       this.initials = item.user.get_initials;
       this.name = item.user.get_full_name;
       this.email = item.user.email;
+      }else{
+        this.$store.dispatch("showNotification", notification);
+      }
+      
     },
     clearForm() {
       this.$refs.form.reset();

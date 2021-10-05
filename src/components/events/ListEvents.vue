@@ -6,9 +6,7 @@
           <v-chip @click="(page = 1), filter('EN PROCESO')">
             En Proceso
           </v-chip>
-          <v-chip @click="(page = 1), filter('CONCLUIDO')">
-            Concluidos
-          </v-chip>
+          <v-chip @click="(page = 1), filter('CONCLUIDO')"> Concluidos </v-chip>
         </v-chip-group>
       </div>
     </v-row>
@@ -91,7 +89,7 @@
                   </div>
                 </v-col>
                 <v-col cols="12" md="6">
-                  <div class="text-subtitle-2 ">
+                  <div class="text-subtitle-2">
                     <v-icon color="grey darken-2"> mdi-clock </v-icon>
                     {{ event.hour_start }}
                   </div>
@@ -131,17 +129,19 @@
 <script>
 import moment from "moment";
 import apiEvents from "@/api/events/";
+import apiOrders from "@/api/orders";
 
 export default {
   name: "ListEvents",
   data() {
     return {
+      list_users: [],
       list_events: [],
       loading: false,
       page: 1,
       numPages: 1,
       totalVisible: 7,
-      filter_status: ""
+      filter_status: "",
     };
   },
   watch: {
@@ -150,9 +150,9 @@ export default {
     },
     page() {
       this.filter(this.filter_status);
-    }
+    },
   },
-  mounted: function() {
+  mounted: function () {
     this.filter("EN PROCESO");
     this.reserve();
   },
@@ -161,10 +161,10 @@ export default {
       this.loading = true;
       setTimeout(() => (this.loading = false), 2000);
     },
-    filter: function(status) {
+    filter: function (status) {
       this.filter_status = status;
 
-      apiEvents.list(status, this.page).then(response => {
+      apiEvents.list(status, this.page).then((response) => {
         this.list_events = response.data.results;
         console.log(this.list_events);
 
@@ -174,13 +174,31 @@ export default {
         else this.numPages = num;
       });
     },
-    showDetailPanel: function(idEvent) {
-      if(sessionStorage.getItem('IdUser') == this.list_events.find(e => e.id === idEvent).create_by.id){
-        this.$router.push({
-        name: "Detalle del Evento",
-        params: { id: idEvent }
+    showDetailPanel: function (idEvent) {
+      let notification = {
+        snackbar: true,
+        direction: "top center",
+        msg: "No participas en este evento",
+        color: "error",
+      };
+      let list_users = [];
+      apiOrders.byEvent(idEvent).then((response) => {
+        debugger;
+        response.data.forEach((dato) => {
+          list_users.push(dato.user);
+        });
+        debugger;
+        if (list_users.find((e) => e.id == sessionStorage.getItem("IdUser"))) {
+          this.$router.push({
+            name: "Detalle del Evento",
+            params: { id: idEvent },
+          });
+        } else {
+          this.$toastr.e(
+            "No perteneces a este evento"
+          );
+        }
       });
-      }      
     },
     getColor(status) {
       switch (status) {
@@ -192,10 +210,10 @@ export default {
           return "red";
       }
     },
-    frontEndDateFormat: function(date) {
+    frontEndDateFormat: function (date) {
       return moment(date, "YYYY-MM-DD").format("DD/MM/YYYY");
-    }
-  }
+    },
+  },
 };
 </script>
 

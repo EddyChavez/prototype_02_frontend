@@ -141,7 +141,9 @@ export default {
               .retrieve()
               .then(response => {
                 this.$store.dispatch("retrieveUser", response.data);
-
+                sessionStorage.setItem('IdUser', response.data.id);
+                sessionStorage.setItem('EmailUser', response.data.email);
+                sessionStorage.setItem('SuperUser', response.data.is_superuser);
                 this.$router.push("/");
               })
               .catch(error => {

@@ -131,7 +131,7 @@
           <v-icon>
             mdi-plus
           </v-icon>
-          Agregar
+          Crear
         </v-btn>
         <v-btn
           v-if="!showAdd"

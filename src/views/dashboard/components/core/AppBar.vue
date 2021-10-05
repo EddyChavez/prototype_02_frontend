@@ -149,6 +149,7 @@ export default {
     }),
     closeSession() {
       deleteTokenApi();
+      sessionStorage.clear(); 
       this.$router.push("/login");
     }
   },
@@ -158,9 +159,7 @@ export default {
       apiUsers
         .retrieve()
         .then(response => {
-          this.$store.dispatch("retrieveUser", response.data);
-          sessionStorage.setItem('IdUser', response.data.id);
-          sessionStorage.setItem('EmailUser', response.data.email);
+          this.$store.dispatch("retrieveUser", response.data);          
           this.getUser = response.data;
         })
         .catch(error => {
