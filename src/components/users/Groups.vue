@@ -446,7 +446,7 @@ export default {
 
         let formData = new FormData();
 
-        formData.append("name", this.group.name);
+        formData.append("name", this.group.name.toUpperCase());
         formData.append("description", this.group.description);
         formData.append("user", this.getUser);
 
@@ -583,7 +583,7 @@ export default {
         };
         let formData = new FormData();
 
-        formData.append("name", this.group.name);
+        formData.append("name", this.group.name.toUpperCase()());
         formData.append("description", this.group.description);
         formData.append("user", this.getUser);
 

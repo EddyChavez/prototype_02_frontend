@@ -197,14 +197,13 @@
           </v-dialog>
         </v-toolbar>
       </template>
-      <template v-slot:item.name="{ item }">
-        <!-- <router-link
-          :to="{ name: 'Administrar Evento', params: { id: item.id } }"
-          >{{ item.name }}
-        </router-link> -->
+      <template v-slot:item.icon="{ item }">
         <v-icon size="30" @click="editEvent(item)">
           mdi-clipboard-edit-outline
         </v-icon>
+      </template>
+      <template v-slot:item.name="{ item }">
+        <strong>{{ item.name }}</strong>
       </template>
       <template v-slot:item.status="{ item }">
         <v-chip :color="getColor(item.status)" dark>
@@ -276,7 +275,7 @@ export default {
       dialogDelete: false,
       headers: [
         {
-          text: "Editar",
+          text: "Administrar",
           align: "start",
           sortable: false,
           value: "icon"

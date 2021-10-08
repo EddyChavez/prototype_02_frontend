@@ -178,25 +178,21 @@ export default {
       let notification = {
         snackbar: true,
         direction: "top center",
-        msg: "No participas en este evento",
+        msg: "Evento privado",
         color: "error",
       };
       let list_users = [];
       apiOrders.byEvent(idEvent).then((response) => {
-        debugger;
         response.data.forEach((dato) => {
           list_users.push(dato.user);
         });
-        debugger;
         if (list_users.find((e) => e.id == sessionStorage.getItem("IdUser"))) {
           this.$router.push({
             name: "Detalle del Evento",
             params: { id: idEvent },
           });
         } else {
-          this.$toastr.e(
-            "No perteneces a este evento"
-          );
+          this.$store.dispatch("showNotification", notification);
         }
       });
     },

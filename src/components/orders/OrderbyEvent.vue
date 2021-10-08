@@ -3,30 +3,27 @@
     <v-row justify="center">
       <v-col cols="12" md="9">
         <v-row align="center" justify="space-around">
-          <v-btn rounded color="#78909C" dark @click="generateReport">
+          <v-btn rounded color="#78909C" dark @click="CrearPDF()">
             <v-icon left>
-              mdi-file-pdf-outline
+              <!-- mdi mdi-file-pdf-outline -->
+              mdi-file-pdf-box
             </v-icon>
             Descargar PDF
           </v-btn>
           <v-btn rounded color="#78909C" dark @click="print">
-            <v-icon left>
-              mdi-printer
-            </v-icon>
+            <v-icon left> mdi-printer </v-icon>
             Imprimir
           </v-btn>
 
           <v-btn
-            :disabled="disable_delivery"
+            :disabled="disable_p"
             rounded
             color="blue"
             dark
             id="custom-disabled-delivery"
             @click="orderDelivered"
           >
-            <v-icon left>
-              mdi-truck-delivery-outline
-            </v-icon>
+            <v-icon left> mdi-truck-delivery-outline </v-icon>
             LLego Pedido
             <v-dialog v-model="deliveryDialog" persistent width="350px">
               <v-card>
@@ -74,15 +71,11 @@
             id="custom-disabled-close"
             @click="closeEvent"
           >
-            <v-icon left>
-              mdi-check-outline
-            </v-icon>
+            <v-icon left> mdi-check-outline </v-icon>
             Evento Pagado
             <v-dialog v-model="closeDialog" persistent width="350px">
               <v-card>
-                <v-card-title class="text-h5">
-                  Concluir Evento
-                </v-card-title>
+                <v-card-title class="text-h5"> Concluir Evento </v-card-title>
                 <v-card-text>
                   <v-container>
                     <v-row justify="center">
@@ -140,9 +133,7 @@
                           v-on="on"
                           @click="loadOrder()"
                         >
-                          <v-icon dark>
-                            mdi-refresh
-                          </v-icon>
+                          <v-icon dark> mdi-refresh </v-icon>
                         </v-btn>
                       </template>
                       <span>Actualizar Pedido</span>
@@ -169,6 +160,7 @@
               </template>
 
               <v-data-table
+                ref="myTable"
                 :headers="orderstHeaders"
                 :items="list_orders"
                 :single-expand="singleExpand"
@@ -197,7 +189,12 @@
                       color="green"
                     >
                       <div
-                        class="display-1 float-md-center font-weight-bold text--white"
+                        class="
+                          display-1
+                          float-md-center
+                          font-weight-bold
+                          text--white
+                        "
                       >
                         {{ Math.ceil(progress_value) }}%
                       </div>
@@ -245,7 +242,11 @@
                                 <v-col cols="12" md="12">
                                   <div class="text-center">
                                     <div
-                                      class="display-2 float-md-center font-weight-bold"
+                                      class="
+                                        display-2
+                                        float-md-center
+                                        font-weight-bold
+                                      "
                                     >
                                       Total: $ {{ payment.amount }}
                                     </div>
@@ -255,7 +256,7 @@
                                   <v-text-field
                                     v-model="money"
                                     label="Monto"
-                                    class=" purple-input"
+                                    class="purple-input"
                                     prepend-icon="mdi-currency-usd"
                                     :rules="moneyRules"
                                   />
@@ -263,7 +264,11 @@
                                 <v-col cols="12" md="12">
                                   <div class="text-center">
                                     <div
-                                      class="display-1 float-md-center font-weight-bold"
+                                      class="
+                                        display-1
+                                        float-md-center
+                                        font-weight-bold
+                                      "
                                     >
                                       cambio: $ {{ remaining }}
                                     </div>
@@ -418,14 +423,14 @@ export default {
           text: "",
           align: "start",
           sortable: false,
-          value: "user.avatar"
+          value: "user.avatar",
         },
         { text: "Usuario", value: "user.get_full_name" },
         // { text: "Fecha", value: "date" },
         { text: "Pagado", value: "paid_out" },
         { text: "Cantidad", value: "quantity" },
         { text: "Total", value: "amount" },
-        { text: "", value: "data-table-expand" }
+        { text: "", value: "data-table-expand" },
       ],
       list_orders: [],
       expanded: [],
@@ -442,33 +447,33 @@ export default {
       remaining: 0,
       money: 0,
       moneyRules: [
-        v => !!v || "Pago es requerido",
-        v => v > 0 || "Debe ser mayor a 0.00"
+        (v) => !!v || "Pago es requerido",
+        (v) => v > 0 || "Debe ser mayor a 0.00",
       ],
       content: "",
       progress_value: 0,
       status: "",
       list_users: [],
-      nameEvent : ""
+      nameEvent: "",
     };
   },
   watch: {
     money() {
       this.remaining = parseFloat(this.money - this.payment.amount).toFixed(2);
-    }
+    },
   },
   computed: {
     idEvent() {
       return this.$route.params.id;
-    }
+    },
   },
-  mounted: function() {
+  mounted: function () {
     this.retrieveStatus();
     this.loadOrder();
   },
   methods: {
     retrieveStatus() {
-      apiEvents.getStatus(this.idEvent).then(response => {
+      apiEvents.getStatus(this.idEvent).then((response) => {
         this.status = response.data.status;
         this.nameEvent = response.data.name;
 
@@ -481,14 +486,14 @@ export default {
         }
       });
     },
-    expand: function() {
+    expand: function () {
       if (this.showDetail) {
         this.$data.expanded = this.$data.list_orders;
       } else {
         this.$data.expanded = [];
       }
     },
-    subTotal: function(quantity, price) {
+    subTotal: function (quantity, price) {
       return quantity * price;
     },
     editPayment(idOrder) {
@@ -497,18 +502,18 @@ export default {
 
         formData.append("amount_paid", this.money);
 
-        apiOrders.editPaid(idOrder, formData).then(response => {
+        apiOrders.editPaid(idOrder, formData).then((response) => {
           this.loadOrder();
         });
 
         this.clearForm();
       }
     },
-    loadOrder: function() {
+    loadOrder: function () {
       this.isUpdating = true;
       setTimeout(() => (this.isUpdating = false), 2000);
 
-      apiOrders.byEvent(this.idEvent).then(response => {
+      apiOrders.byEvent(this.idEvent).then((response) => {
         this.list_orders = response.data;
 
         let count = [];
@@ -516,7 +521,7 @@ export default {
         let paid_out = [];
         this.list_users = [];
 
-        response.data.forEach(dato => {
+        response.data.forEach((dato) => {
           this.list_users.push(dato.user);
         });
         console.log(this.list_users);
@@ -526,15 +531,15 @@ export default {
           paid_out.push(parseFloat(val.amount_paid));
         });
 
-        this.count = count.reduce(function(count, num) {
+        this.count = count.reduce(function (count, num) {
           return count + num;
         }, 0);
 
-        this.total = total.reduce(function(total, num) {
+        this.total = total.reduce(function (total, num) {
           return total + num;
         }, 0);
 
-        this.paid_out = paid_out.reduce(function(paid_out, num) {
+        this.paid_out = paid_out.reduce(function (paid_out, num) {
           return paid_out + num;
         }, 0);
 
@@ -542,37 +547,36 @@ export default {
           this.progress_value = (this.paid_out * 100) / this.total;
       });
     },
-    frontEndDateFormat: function(date) {
+    frontEndDateFormat: function (date) {
       return moment(date, "YYYY-MM-DD").format("DD/MM/YYYY");
     },
     showPayment(item) {
+      debugger;
       var valido = false;
       let notification = {
-          snackbar: true,
-          direction: "top center",
-          msg: "Error: No cuentas con los permisos suficientes",
-          color: "error"
-        };
-      this.list_users.forEach(element => {
-        
-        valido = sessionStorage.getItem('IdUser') == element.id ? true : false;
+        snackbar: true,
+        direction: "top center",
+        msg: "Error: No cuentas con los permisos suficientes",
+        color: "error",
+      };
+      this.list_users.forEach((element) => {
+        valido = sessionStorage.getItem("IdUser") == element.id ? true : false;
       });
 
-      if(sessionStorage.getItem('SuperUser') == true &&  valido){
-      this.dialog = true;
+      if (sessionStorage.getItem("SuperUser") == "true" && valido) {
+        this.dialog = true;
 
-      this.money = 0;
-      this.remaining = 0;
+        this.money = 0;
+        this.remaining = 0;
 
-      this.payment = item;
-      this.avatar = item.user.avatar;
-      this.initials = item.user.get_initials;
-      this.name = item.user.get_full_name;
-      this.email = item.user.email;
-      }else{
+        this.payment = item;
+        this.avatar = item.user.avatar;
+        this.initials = item.user.get_initials;
+        this.name = item.user.get_full_name;
+        this.email = item.user.email;
+      } else {
         this.$store.dispatch("showNotification", notification);
       }
-      
     },
     clearForm() {
       this.$refs.form.reset();
@@ -582,7 +586,7 @@ export default {
       this.remaining = 0;
     },
     generateReport() {
-      domtoimage.toPng(this.$refs.content).then(function(dataUrl) {
+      domtoimage.toPng(this.$refs.content).then(function (dataUrl) {
         var img = new Image();
         img.src = dataUrl;
 
@@ -590,7 +594,7 @@ export default {
           orientation: "portrait", // vertical
           //orientation: "landscape", // horizaontal
           unit: "pt",
-          format: [612, 792] // tamaño carta
+          format: [612, 792], // tamaño carta
         });
 
         doc.addImage(img, "JPEG", 10, 25); // eje x y
@@ -619,12 +623,12 @@ export default {
         console.log(this.members);
 
         formData.append("idEvent", this.idEvent);
-        this.list_users.forEach(item => {
+        this.list_users.forEach((item) => {
           formData.append("listEmails", item.email);
         });
         apiGroups
           .sendEmailDelivered(formData)
-          .then(response => {
+          .then((response) => {
             this.dialogDelete = false;
 
             let notification = {
@@ -632,7 +636,7 @@ export default {
               direction: "top center",
               msg: response.data.message,
               important: "",
-              color: "success"
+              color: "success",
             };
             this.$store.dispatch("showNotification", notification);
 
@@ -643,17 +647,17 @@ export default {
 
             if (this.redirect) {
               this.$router.push({
-                name: "Eventos"
+                name: "Eventos",
               });
             }
           })
-          .catch(error => {
+          .catch((error) => {
             let notification = {
               snackbar: true,
               direction: "top center",
               msg: error,
               important: "",
-              color: "error"
+              color: "error",
             };
             this.$store.dispatch("showNotification", notification);
             this.dialogDelete = false;
@@ -689,11 +693,58 @@ export default {
 
       formData.append("status", status);
 
-      apiEvents.editStatus(this.idEvent, formData).then(response => {
+      apiEvents.editStatus(this.idEvent, formData).then((response) => {
         this.retrieveStatus();
       });
-    }
-  }
+    },
+    CrearPDF() {
+      var source = this.$refs["myTable"];
+      let rows = [];
+      let pdfName = "Pedidos_" + this.nameEvent;
+      let i = 1;      
+      source.items.forEach((element) => {
+        let concatena = '';
+        element.items.forEach(item =>{
+          concatena += "Producto: "+item.product+"\n Descripcion: "+item.description+"\n Precio: " + item.price+"\n Cantidad: "+item.quantity.toString()+ "\n"
+        });
+        concatena = concatena == '' ? "NA": concatena.trim();          
+        let objrow = {
+          ID: i.toString(),
+          USUARIO: element.user.get_full_name.toString(),
+          PAGADO: element.paid_out.toString(),
+          TOTAL: element.amount.toString(),
+          PRODUCTOS: concatena,
+        };
+        rows.push(Object.assign({}, objrow));
+        i++;
+      });
+      function createHeaders(keys) {
+        let result = [];
+        for (var i = 0; i < keys.length; i += 1) {
+          result.push({
+            id: keys[i],
+            name: keys[i],
+            prompt: keys[i],
+            width: 55,
+            align: "center",
+            padding: 0,
+          });
+        }
+        return result;
+      }
+
+      let headers = createHeaders([
+        "ID",
+        "USUARIO",
+        "PAGADO",
+        "TOTAL",
+        "PRODUCTOS",
+      ]);
+      var doc = new jsPDF({ putOnlyUsedFonts: true});
+      doc.table(1, 1, rows, headers);
+      doc.save(pdfName + ".pdf");
+    },
+  },
 };
 </script>
 

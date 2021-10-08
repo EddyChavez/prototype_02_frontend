@@ -371,9 +371,9 @@ export default {
       apiGroups
         .getMembers(idGroup)
         .then(response => {
-          this.items_users = response.data[0].members;
+           /* this.items_users= response.data[0].members; */
 
-          this.items_users.forEach(item => {
+           response.data[0].members.forEach(item => {
             this.addMembers(item.user);
           });
 
