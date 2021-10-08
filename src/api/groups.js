@@ -86,6 +86,7 @@ const apiGroups = {
       }
     );
   },
+
   sendEmail: function(formData) {
     return axios.post(`${API_URL}/api/tribes/invitations/`, formData, {
       headers: {

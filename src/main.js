@@ -24,9 +24,9 @@ import "./plugins/vee-validate";
 import vuetify from "./plugins/vuetify";
 import router from "./router";
 import store from "./store/store";
-import VueToastr from "vue-toastr";
+//import VueToastr from "vue-toastr";
 
-Vue.use(VueToastr);
+//Vue.use(VueToastr);
 Vue.use(Vue2Editor);
 Vue.use(LoadScript);
 Vue.use(VueYouTubeEmbed);

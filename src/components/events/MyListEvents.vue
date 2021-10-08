@@ -160,9 +160,13 @@
             </v-dialog>
             <v-dialog v-model="dialogDelete" max-width="500px">
               <v-card>
-                <v-card-title class="text-h5"
-                  >Seguro que desea eliminar este evento?</v-card-title
+                <v-card-title class="text-h4"
+                  ><strong>Seguro que desea eliminar este evento?</strong>
+                  <v-card-subtitle>
+                    Se perderán: Los pedidos, Lista de participantes y Pagos
+                  </v-card-subtitle></v-card-title
                 >
+
                 <v-card-actions>
                   <v-spacer></v-spacer>
 
@@ -188,44 +192,43 @@
                   <!-- <v-btn color="blue darken-1" text @click="closeDelete"
                   >Cancel</v-btn
                 > -->
-                <v-btn color="blue darken-1" text @click="closeAviso()"
-                  >OK</v-btn
-                >
-                <v-spacer></v-spacer>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
-        </v-toolbar>
-      </template>
-      <template v-slot:item.name="{ item }">
-        <!-- <router-link
-          :to="{ name: 'Administrar Evento', params: { id: item.id } }"
-          >{{ item.name }}
-        </router-link> -->
-        <v-icon size="30" @click="editEvent(item)">
-          mdi-clipboard-edit-outline
-        </v-icon>
-      </template>
-      <template v-slot:item.status="{ item }">
-        <v-chip :color="getColor(item.status)" dark>
-          {{ item.status }}
-        </v-chip>
-      </template>
-      <template v-slot:item.date_start="{ item }">
-        {{ frontEndDateFormat(item.date_start) }}
-      </template>
-      <template v-slot:item.image="{ item }">
-        <v-avatar v-if="item.image" size="40">
-          <img alt="user" :src="item.image" />
-        </v-avatar>
-        <v-avatar v-else size="56">
-          <img alt="user" src="@/assets/events2.jpg" />
-        </v-avatar>
-      </template>
-      <template v-slot:item.actions="{ item }">
-        <v-icon @click="editItem(item)"> mdi-pencil </v-icon>
-        <v-icon @click="deleteItem(item)"> mdi-close </v-icon>
-        <!-- <v-btn
+                  <v-btn color="blue darken-1" text @click="closeAviso()"
+                    >OK</v-btn
+                  >
+                  <v-spacer></v-spacer>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+          </v-toolbar>
+        </template>
+        <template v-slot:item.icon="{ item }">
+          <v-icon size="30" @click="editEvent(item)">
+            mdi-clipboard-edit-outline
+          </v-icon>
+        </template>
+        <template v-slot:item.name="{ item }">
+          <strong>{{ item.name }}</strong>
+        </template>
+        <template v-slot:item.status="{ item }">
+          <v-chip :color="getColor(item.status)" dark>
+            {{ item.status }}
+          </v-chip>
+        </template>
+        <template v-slot:item.date_start="{ item }">
+          {{ frontEndDateFormat(item.date_start) }}
+        </template>
+        <template v-slot:item.image="{ item }">
+          <v-avatar v-if="item.image" size="56">
+            <img alt="user" :src="item.image" />
+          </v-avatar>
+          <v-avatar v-else size="56">
+            <img alt="user" src="@/assets/events2.jpg" />
+          </v-avatar>
+        </template>
+        <template v-slot:item.actions="{ item }">
+          <v-icon @click="editItem(item)"> mdi-pencil </v-icon>
+          <v-icon @click="deleteItem(item)"> mdi-close </v-icon>
+          <!-- <v-btn
           class="mr-2"
           outlined
           color="indigo"
@@ -276,18 +279,17 @@ export default {
       dialogDelete: false,
       headers: [
         {
-          text: "Editar",
+          text: "Administrar",
           align: "start",
           sortable: false,
           value: "icon"
         },
         {
           text: "Nombre",
-          //align: "start",
           sortable: false,
           value: "name"
         },
-        { text: "Descripcion", value: "description" },
+        { text: "Descripcion Corta", value: "description" },
         { text: "Fecha Inicio", value: "date_start" },
         { text: "Hora Inicio", value: "hour_start" },
         { text: "Estatus", value: "status" },

@@ -1,5 +1,5 @@
 <template>
-  <base-material-card>
+  <base-material-card flat>
     <template v-slot:heading>
       <div v-if="showForm" class="display-2 font-weight-light">
         <!-- {{ event.name }} -->

@@ -1,5 +1,5 @@
 <template>
-  <base-material-card>
+  <base-material-card flat>
     <template v-slot:heading>
       <div class="display-2 font-weight-light">
         Agrega participantes a tu evento
@@ -134,37 +134,38 @@
         </h4>
       </v-col>
     </v-row>
-    <v-card>
-      <v-card-title>
-        <v-spacer></v-spacer>
-        <v-text-field
-          v-model="search"
-          append-icon="mdi-magnify"
-          label="Buscar"
-          single-line
-          hide-details
-        ></v-text-field>
-      </v-card-title>
-      <v-data-table :headers="headers" :items="members" :search="search">
-        <template v-slot:item.avatar="{ item }">
-          <v-avatar left v-if="item.avatar">
-            <v-img :src="item.avatar"></v-img>
-          </v-avatar>
-          <v-avatar color="indigo" v-else>
-            <span v-if="item.get_initials" class="white--text text-h5">{{
-              item.get_initials
-            }}</span>
-            <v-img v-else src="@/assets/user_group.png"></v-img>
-          </v-avatar>
-        </template>
-        <template v-slot:item.actions="{ item }">
-          <v-icon small @click="remove(item)">
-            mdi-close
-          </v-icon>
-        </template>
-      </v-data-table>
-    </v-card>
-
+    <v-sheet elevation="10">
+      <v-card>
+        <v-card-title>
+          <v-spacer></v-spacer>
+          <v-text-field
+            v-model="search"
+            append-icon="mdi-magnify"
+            label="Buscar"
+            single-line
+            hide-details
+          ></v-text-field>
+        </v-card-title>
+        <v-data-table :headers="headers" :items="members" :search="search">
+          <template v-slot:item.avatar="{ item }">
+            <v-avatar left v-if="item.avatar">
+              <v-img :src="item.avatar"></v-img>
+            </v-avatar>
+            <v-avatar color="indigo" v-else>
+              <span v-if="item.get_initials" class="white--text text-h5">{{
+                item.get_initials
+              }}</span>
+              <v-img v-else src="@/assets/user_group.png"></v-img>
+            </v-avatar>
+          </template>
+          <template v-slot:item.actions="{ item }">
+            <v-icon small @click="remove(item)">
+              mdi-close
+            </v-icon>
+          </template>
+        </v-data-table>
+      </v-card>
+    </v-sheet>
     <v-col cols="12" md="12" class="text-center">
       <div class="text-center flex">
         <v-btn
@@ -256,6 +257,7 @@
 
 <script>
 import apiGroups from "@/api/groups/";
+import apiEvents from "@/api/events/";
 import Participants from "@/components/events/Participants.vue";
 
 export default {
@@ -295,7 +297,8 @@ export default {
       valid: false,
       iconIndex: 0,
       dialogDelete: false,
-      redirect: false
+      redirect: false,
+      list_admin: []
     };
   },
   computed: {
@@ -321,7 +324,9 @@ export default {
   },
 
   methods: {
-    sendMessage() {
+    sendMessage(e) {
+      e.preventDefault();
+
       if (this.$refs.form.validate()) {
         let item = {
           avatar: null,
@@ -371,10 +376,12 @@ export default {
       apiGroups
         .getMembers(idGroup)
         .then(response => {
-          this.items_users = response.data[0].members;
-
-          this.items_users.forEach(item => {
+          response.data[0].members.forEach(item => {
             this.addMembers(item.user);
+
+            if (item.is_admin) {
+              this.addAdmins(item.user.id);
+            }
           });
 
           this.count_participants = this.members.length;
@@ -405,28 +412,45 @@ export default {
         this.$store.dispatch("showNotification", notification);
       }
     },
+    addAdmins(idUser) {
+      let index = this.list_admin.findIndex(id => id === idUser);
+
+      if (index == -1) {
+        this.list_admin.push(idUser);
+      }
+    },
     SearchGroups(kword) {
       apiGroups.getGroups(kword).then(response => {
         this.groups = response.data;
       });
     },
     remove(item) {
-      const index = this.members.indexOf(item);
+      let index = this.members.indexOf(item);
       if (index >= 0) {
         this.members.splice(index, 1);
-
         this.count_participants = this.members.length;
+
+        let indexAdmin = this.list_admin.findIndex(id => id === item.id);
+        if (indexAdmin >= 0) {
+          this.list_admin.splice(index, 1);
+        }
       }
     },
     sendInvitations() {
       let formData = new FormData();
+      const idEvent = this.idEvent;
 
       this.loading = true;
       setTimeout(() => (this.loading = false), 4000);
 
-      formData.append("idEvent", this.idEvent);
+      formData.append("idEvent", idEvent);
       this.members.forEach(item => {
         formData.append("listEmails", item.email);
+      });
+
+      const formDataAdmins = new FormData();
+      this.list_admin.forEach(item => {
+        formDataAdmins.append("members", item);
       });
 
       apiGroups
@@ -444,6 +468,22 @@ export default {
           this.$router.push({
             name: "Eventos"
           });
+
+          apiEvents
+            .addParticipants(formData)
+            .then(response => {
+              apiEvents
+                .assignPermissions(idEvent, formDataAdmins)
+                .then(response => {
+                  console.log(response.data);
+                })
+                .catch(error => {
+                  console.log(error);
+                });
+            })
+            .catch(error => {
+              console.log(error);
+            });
 
           this.dialogDelete = false;
         })

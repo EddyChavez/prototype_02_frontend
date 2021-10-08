@@ -2,34 +2,37 @@
   <v-container fluid tag="section">
     <v-row justify="center">
       <v-col cols="12" md="8">
-        <participants v-if="showUsers" />
-        <edit-event v-else />
+        <v-tabs v-model="tab" centered fixed-tabs>
+          <v-tab>Editar Evento</v-tab>
+          <v-tab>Agregar Participantes</v-tab>
+          <v-tab>Ver Participantes</v-tab>
+        </v-tabs>
+        <v-tabs-items v-model="tab">
+          <v-tab-item>
+            <edit-event />
+          </v-tab-item>
+          <v-tab-item>
+            <participants />
+          </v-tab-item>
+          <v-tab-item>
+            <show-participants />
+          </v-tab-item>
+        </v-tabs-items>
       </v-col>
       <v-col cols="12" md="4">
         <card-event />
-
-        <v-card-text>
-          <div class="text-center flex">
-            <v-btn rounded color="blue" dark @click="addParticipants()">
-              {{ button_text }}
-            </v-btn>
-          </div>
-        </v-card-text>
       </v-col>
     </v-row>
-    <v-dialog v-model="aviso" max-width="300px">
+
+    <v-dialog v-model="blocked" max-width="300px" persistent>
       <v-card elevation="24">
         <v-card-title class="text-h5">Aviso</v-card-title>
-        <v-card-text align="center" justify="center"  class="red--text"
-          >¡No puedes realizar esta acción!</v-card-text
+        <v-card-text align="center" justify="center" class="red--text text--h4"
+          >¡No puedes editar este evento!</v-card-text
         >
         <v-card-actions>
           <v-spacer></v-spacer>
-
-          <!-- <v-btn color="blue darken-1" text @click="closeDelete"
-                  >Cancel</v-btn
-                > -->
-          <v-btn color="blue darken-1" text @click="closeAviso()">OK</v-btn>
+          <v-btn color="blue darken-1" text @click="backEvents()">OK</v-btn>
           <v-spacer></v-spacer>
         </v-card-actions>
       </v-card>
@@ -38,10 +41,11 @@
 </template>
 
 <script>
+import apiEvents from "@/api/events/";
 import CardEvent from "@/components/events/CardEvent.vue";
 import EditEvent from "@/components/events/EditEvent.vue";
 import Participants from "@/components/events/Participants.vue";
-import apiEvents from "@/api/events/";
+import ShowParticipants from "@/components/events/ShowParticipants.vue";
 
 export default {
   name: "AdminEvent",
@@ -49,12 +53,17 @@ export default {
     CardEvent,
     EditEvent,
     Participants,
+    ShowParticipants
   },
   data() {
     return {
-      aviso:false,
+      aviso: false,
       showUsers: false,
+      showMembers: false,
       button_text: "Agregar Participantes",
+      dialog: false,
+      blocked: false,
+      tab: null
     };
   },
   computed: {
@@ -63,59 +72,19 @@ export default {
     },
     getUser() {
       return this.$store.getters.getUser.id;
-    },
+    }
   },
-  /*  mounted() {
-    let flag = false;
-    apiEvents
-      .validate_permission(this.idEvent, 1)
-      .then((response) => {
-        debugger;
-        flag = response.data.data;
-        if (flag === false) {
-          debugger;
-          console.log("No tienes permiso para editar este evento!");
-          this.$router.push({
-            name: "Mis Eventos",
-          });
-        }
-      })
-      .catch((error) => {
-        flag = false;
-      });
-  }, */
-  beforeMount() {
-    let flag = false;
+  mounted() {
     apiEvents
       .validate_permission(this.idEvent, this.getUser)
-      .then((response) => {
-        flag = response.data.data;
-        if (flag === false) {
-          //console.log("No tienes permiso para editar este evento!");
-          this.aviso = true;          
+      .then(response => {
+        if (response.data.approved) {
+          this.blocked = true;
         }
       })
-      .catch((error) => {
-        flag = false;
+      .catch(error => {
+        this.blocked = true;
       });
-    /* console.log("preparando...");
-   console.log(this.idEvent);
-   console.log(this.getUser);
-   let flag = false;
-   apiEvents
-     .validate_permission(this.idEvent, 1)
-     .then(response => {
-       flag = response.data;
-     })
-     .catch(error => {
-       flag = false;
-     });
-   if (flag === false) {
-     console.log("No tienes permiso para editar este evento!");
-     this.$router.push({
-       name: "Mis Eventos"
-     });
-   } */
   },
   methods: {
     addParticipants() {
@@ -124,14 +93,13 @@ export default {
       this.button_text = this.showUsers
         ? "Editar Detalle"
         : "Agregar Participantes";
-    },    
-    closeAviso() {
-      this.aviso = false;
-      this.$router.push({
-            name: "Mis Eventos",
-          });
     },
-  },
+    backEvents() {
+      this.$router.push({
+        name: "Eventos"
+      });
+    }
+  }
 };
 </script>
 

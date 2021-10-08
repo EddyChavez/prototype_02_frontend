@@ -105,6 +105,31 @@ const apiEvents = {
         Authorization: `Token ${getTokenApi()}`
       }
     });
+  },
+  addParticipants: function(formData) {
+    return axios.post(`${API_URL}/api/events/add-participants/`, formData, {
+      headers: {
+        Authorization: `Token ${getTokenApi()}`
+      }
+    });
+  },
+  getParticipants: function(idEvent) {
+    return axios.get(`${API_URL}/api/events/participants/${idEvent}/`, {
+      headers: {
+        Authorization: `Token ${getTokenApi()}`
+      }
+    });
+  },
+  assignPermissions: function(idEvent, formData) {
+    return axios.post(
+      `${API_URL}/api/events/assign-permissions/${idEvent}/`,
+      formData,
+      {
+        headers: {
+          Authorization: `Token ${getTokenApi()}`
+        }
+      }
+    );
   }
 };
 

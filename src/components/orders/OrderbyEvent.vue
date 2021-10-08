@@ -294,14 +294,12 @@
                     </v-dialog>
                   </v-toolbar>
                 </template>
-
                 <template v-slot:expanded-item="{ headers, item }">
                   <td :colspan="headers.length">
                     <v-simple-table>
                       <thead>
                         <th>Producto</th>
                         <th>Descripcion</th>
-
                         <th>Precio</th>
                         <th>Cantidad</th>
                         <th>Subtotal</th>
@@ -449,7 +447,8 @@ export default {
       progress_value: 0,
       status: "",
       list_users: [],
-      nameEvent : ""
+      nameEvent: "",
+      approved: false
     };
   },
   watch: {
@@ -465,8 +464,19 @@ export default {
   mounted: function() {
     this.retrieveStatus();
     this.loadOrder();
+    this.ValidatePermission();
   },
   methods: {
+    ValidatePermission() {
+      apiEvents
+        .validate_permission(this.idEvent)
+        .then(response => {
+          this.approved = response.data.approved;
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
     retrieveStatus() {
       apiEvents.getStatus(this.idEvent).then(response => {
         this.status = response.data.status;
@@ -546,33 +556,26 @@ export default {
       return moment(date, "YYYY-MM-DD").format("DD/MM/YYYY");
     },
     showPayment(item) {
-      var valido = false;
       let notification = {
-          snackbar: true,
-          direction: "top center",
-          msg: "Error: No cuentas con los permisos suficientes",
-          color: "error"
-        };
-      this.list_users.forEach(element => {
-        
-        valido = sessionStorage.getItem('IdUser') == element.id ? true : false;
-      });
+        snackbar: true,
+        direction: "top center",
+        msg: "No cuentas con los permisos suficientes",
+        color: "warning"
+      };
 
-      if(sessionStorage.getItem('SuperUser') == true &&  valido){
-      this.dialog = true;
+      if (this.approved) {
+        this.dialog = true;
 
-      this.money = 0;
-      this.remaining = 0;
-
-      this.payment = item;
-      this.avatar = item.user.avatar;
-      this.initials = item.user.get_initials;
-      this.name = item.user.get_full_name;
-      this.email = item.user.email;
-      }else{
+        this.money = 0;
+        this.remaining = 0;
+        this.payment = item;
+        this.avatar = item.user.avatar;
+        this.initials = item.user.get_initials;
+        this.name = item.user.get_full_name;
+        this.email = item.user.email;
+      } else {
         this.$store.dispatch("showNotification", notification);
       }
-      
     },
     clearForm() {
       this.$refs.form.reset();
