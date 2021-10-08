@@ -160,9 +160,13 @@
             </v-dialog>
             <v-dialog v-model="dialogDelete" max-width="500px">
               <v-card>
-                <v-card-title class="text-h5"
-                  >Seguro que desea eliminar este evento?</v-card-title
+                <v-card-title class="text-h4"
+                  ><strong>Seguro que desea eliminar este evento?</strong>
+                  <v-card-subtitle>
+                    Se perderán: Los pedidos, Lista de participantes y Pagos
+                  </v-card-subtitle></v-card-title
                 >
+
                 <v-card-actions>
                   <v-spacer></v-spacer>
 
@@ -282,11 +286,10 @@ export default {
         },
         {
           text: "Nombre",
-          //align: "start",
           sortable: false,
           value: "name"
         },
-        { text: "Descripcion", value: "description" },
+        { text: "Descripcion Corta", value: "description" },
         { text: "Fecha Inicio", value: "date_start" },
         { text: "Hora Inicio", value: "hour_start" },
         { text: "Estatus", value: "status" },
