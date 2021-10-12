@@ -3,12 +3,53 @@
     <v-row justify="center">
       <v-col cols="12" md="9">
         <v-row align="center" justify="space-around">
-          <v-btn rounded color="#78909C" dark @click="CrearPDF()">
+          <v-btn rounded color="#78909C" dark @click="descargaLista">
             <v-icon left>
               <!-- mdi mdi-file-pdf-outline -->
               mdi-file-pdf-box
             </v-icon>
             Descargar PDF
+            <v-dialog v-model="descargaDialog" persistent width="350px">
+              <v-card>
+                <v-card-title class="text-h5">
+                  Descargar lista de:
+                </v-card-title>
+                <v-card-text>
+                  <v-container>
+                    <v-row justify="center">
+                      <div class="row align-center justify-space-around">
+                        <v-btn
+                          rounded
+                          color="green darken-1"
+                          dark
+                          @click="CrearPDF(0)"
+                        >
+                          Pedidos
+                        </v-btn>
+                        <v-btn
+                          rounded
+                          color="blue darken-1"
+                          dark
+                          @click="CrearPDF(1)"
+                        >
+                          Invitados
+                        </v-btn>
+                      </div>
+                    </v-row>
+                  </v-container>
+                </v-card-text>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn
+                    color="green darken-1"
+                    text
+                    @click="descargaDialog = false"
+                  >
+                    Cancelar
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
           </v-btn>
           <v-btn rounded color="#78909C" dark @click="print">
             <v-icon left> mdi-printer </v-icon>
@@ -396,6 +437,7 @@ import apiGroups from "@/api/groups/";
 import moment from "moment";
 import jsPDF from "jspdf";
 import domtoimage from "dom-to-image";
+//import func from "vue-editor-bridge";
 
 /* const usuarios = [] */
 
@@ -413,6 +455,7 @@ export default {
       disabled_close: false,
       disable_delivery: false,
       deliveryDialog: false,
+      descargaDialog: false,
       finish: false,
       delivery: false,
       closeDialog: false,
@@ -453,7 +496,7 @@ export default {
       status: "",
       list_users: [],
       nameEvent: "",
-      approved: false
+      approved: false,
     };
   },
   watch: {
@@ -475,10 +518,10 @@ export default {
     ValidatePermission() {
       apiEvents
         .validate_permission(this.idEvent)
-        .then(response => {
+        .then((response) => {
           this.approved = response.data.approved;
         })
-        .catch(error => {
+        .catch((error) => {
           console.log(error);
         });
     },
@@ -565,7 +608,7 @@ export default {
         snackbar: true,
         direction: "top center",
         msg: "No cuentas con los permisos suficientes",
-        color: "warning"
+        color: "warning",
       };
 
       if (this.approved) {
@@ -615,6 +658,9 @@ export default {
     },
     orderDelivered() {
       this.deliveryDialog = true;
+    },
+    descargaLista() {
+      this.descargaDialog = true;
     },
     deliveryStatus() {
       if (this.delivery == "success") {
@@ -701,27 +747,38 @@ export default {
         this.retrieveStatus();
       });
     },
-    CrearPDF() {
+
+    CrearPDF(idLista) {
       var source = this.$refs["myTable"];
       let rows = [];
-      let pdfName = "Pedidos_" + this.nameEvent;
-      let i = 1;      
-      source.items.forEach((element) => {
-        let concatena = '';
-        element.items.forEach(item =>{
-          concatena += "Producto: "+item.product+"\n Descripcion: "+item.description+"\n Precio: " + item.price+"\n Cantidad: "+item.quantity.toString()+ "\n"
+      let pdfPedido = "Pedidos_" + this.nameEvent;
+      let pdfLista = "Invitados_" + this.nameEvent;
+      let i = 1;
+      if (idLista) {
+        source.items.forEach((element) => {
+          let objrow = {
+            ID: i.toString(),
+            USUARIO: element.user.get_full_name.toString(),
+          };
+          rows.push(Object.assign({}, objrow));
+          i++;
         });
-        concatena = concatena == '' ? "NA": concatena.trim();          
-        let objrow = {
-          ID: i.toString(),
-          USUARIO: element.user.get_full_name.toString(),
-          PAGADO: element.paid_out.toString(),
-          TOTAL: element.amount.toString(),
-          PRODUCTOS: concatena,
-        };
-        rows.push(Object.assign({}, objrow));
-        i++;
-      });
+      } else {
+        source.items.forEach((element) => {
+          element.items.forEach((item) => {
+            let objrow = {
+              ID: i.toString(),
+              PRODUCTO: item.product.toUpperCase(),
+              DESCRIPCION: item.description.toUpperCase(),
+              PRECIO: item.price.toUpperCase(),
+              CANTIDAD: item.quantity.toString(),
+            };
+            rows.push(Object.assign({}, objrow));
+            i++;
+          });
+        });
+      }
+
       function createHeaders(keys) {
         let result = [];
         for (var i = 0; i < keys.length; i += 1) {
@@ -729,7 +786,7 @@ export default {
             id: keys[i],
             name: keys[i],
             prompt: keys[i],
-            width: 55,
+            width: 100,
             align: "center",
             padding: 0,
           });
@@ -737,16 +794,26 @@ export default {
         return result;
       }
 
-      let headers = createHeaders([
-        "ID",
-        "USUARIO",
-        "PAGADO",
-        "TOTAL",
-        "PRODUCTOS",
-      ]);
-      var doc = new jsPDF({ putOnlyUsedFonts: true});
-      doc.table(1, 1, rows, headers);
-      doc.save(pdfName + ".pdf");
+      let headers = function (id) {
+        let result = [];
+        if (id) {
+          result = createHeaders(["ID", "USUARIO"]);
+        } else {
+          result = createHeaders([
+            "ID",
+            "PRODUCTO",
+            "DESCRIPCION",
+            "PRECIO",
+            "CANTIDAD",
+          ]);
+        }
+        return result;
+      };
+      var doc = new jsPDF({ putOnlyUsedFonts: true });
+      doc.table(10, 10, rows, headers(idLista), { autoSize: true });
+      idLista == true
+        ? doc.save(pdfLista + ".pdf")
+        : doc.save(pdfPedido + ".pdf");
     },
   },
 };
