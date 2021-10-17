@@ -141,7 +141,7 @@ export default {
       page: 1,
       numPages: 1,
       totalVisible: 7,
-      filter_status: "",
+      filter_status: ""
     };
   },
   watch: {
@@ -150,9 +150,9 @@ export default {
     },
     page() {
       this.filter(this.filter_status);
-    },
+    }
   },
-  mounted: function () {
+  mounted: function() {
     this.filter("EN PROCESO");
     this.reserve();
   },
@@ -161,10 +161,10 @@ export default {
       this.loading = true;
       setTimeout(() => (this.loading = false), 2000);
     },
-    filter: function (status) {
+    filter: function(status) {
       this.filter_status = status;
 
-      apiEvents.list(status, this.page).then((response) => {
+      apiEvents.list(status, this.page).then(response => {
         this.list_events = response.data.results;
         console.log(this.list_events);
 
@@ -174,31 +174,35 @@ export default {
         else this.numPages = num;
       });
     },
-    showDetailPanel: function (idEvent) {
-      let notification = {
-        snackbar: true,
-        direction: "top center",
-        msg: "No participas en este evento",
-        color: "error",
-      };
-      let list_users = [];
-      apiOrders.byEvent(idEvent).then((response) => {
-        debugger;
-        response.data.forEach((dato) => {
-          list_users.push(dato.user);
-        });
-        debugger;
-        if (list_users.find((e) => e.id == sessionStorage.getItem("IdUser"))) {
-          this.$router.push({
-            name: "Detalle del Evento",
-            params: { id: idEvent },
-          });
-        } else {
-          this.$toastr.e(
-            "No perteneces a este evento"
-          );
-        }
+    showDetailPanel: function(idEvent) {
+      this.$router.push({
+        name: "Detalle del Evento",
+        params: { id: idEvent }
       });
+      // let notification = {
+      //   snackbar: true,
+      //   direction: "top center",
+      //   msg: "No participas en este evento",
+      //   color: "error",
+      // };
+      // let list_users = [];
+      // apiOrders.byEvent(idEvent).then((response) => {
+      //   debugger;
+      //   response.data.forEach((dato) => {
+      //     list_users.push(dato.user);
+      //   });
+      //   debugger;
+      //   if (list_users.find((e) => e.id == sessionStorage.getItem("IdUser"))) {
+      //     this.$router.push({
+      //       name: "Detalle del Evento",
+      //       params: { id: idEvent },
+      //     });
+      //   } else {
+      //     this.$toastr.e(
+      //       "No perteneces a este evento"
+      //     );
+      //   }
+      // });
     },
     getColor(status) {
       switch (status) {
@@ -210,10 +214,10 @@ export default {
           return "red";
       }
     },
-    frontEndDateFormat: function (date) {
+    frontEndDateFormat: function(date) {
       return moment(date, "YYYY-MM-DD").format("DD/MM/YYYY");
-    },
-  },
+    }
+  }
 };
 </script>
 

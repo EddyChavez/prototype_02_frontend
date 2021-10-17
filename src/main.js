@@ -12,6 +12,7 @@
 // * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 import Vue from "vue";
+import VueHtmlToPaper from "vue-html-to-paper";
 import LoadScript from "vue-plugin-load-script";
 import VueYouTubeEmbed from "vue-youtube-embed";
 import Vue2Editor from "vue2-editor";
@@ -24,8 +25,21 @@ import "./plugins/vee-validate";
 import vuetify from "./plugins/vuetify";
 import router from "./router";
 import store from "./store/store";
-//import VueToastr from "vue-toastr";
 
+const options = {
+  name: "_blank",
+  specs: ["fullscreen=yes", "titlebar=yes", "scrollbars=yes"],
+  styles: [
+    "https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css",
+    "https://unpkg.com/kidlat-css/css/kidlat.css"
+  ],
+  timeout: 1000, // default timeout before the print window appears
+  autoClose: true, // if false, the window will not close after printing
+  windowTitle: window.document.title // override the window title
+};
+
+//import VueToastr from "vue-toastr";
+Vue.use(VueHtmlToPaper);
 //Vue.use(VueToastr);
 Vue.use(Vue2Editor);
 Vue.use(LoadScript);

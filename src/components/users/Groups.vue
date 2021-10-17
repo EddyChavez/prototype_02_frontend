@@ -374,9 +374,15 @@ export default {
     search2(val) {
       if (this.items.length > 0) return;
 
-      apiGroups.getUsers().then(response => {
-        this.items = response.data;
-      });
+      apiGroups
+        .getUsers()
+        .then(response => {
+          this.items = response.data;
+        })
+        .catch(error => {
+          if (error.response.data.detail)
+            this.$store.dispatch("expireSession", true);
+        });
     }
   },
 
@@ -478,14 +484,18 @@ export default {
             this.$refs.form.resetValidation();
           })
           .catch(error => {
-            let error_msg = {
-              snackbar: true,
-              direction: "top center",
-              msg: error.response.data.error,
-              color: "error"
-            };
+            if (error.response.data.detail) {
+              this.$store.dispatch("expireSession", true);
+            } else {
+              let error_msg = {
+                snackbar: true,
+                direction: "top center",
+                msg: error.response.data.error,
+                color: "error"
+              };
 
-            this.$store.dispatch("showNotification", error_msg);
+              this.$store.dispatch("showNotification", error_msg);
+            }
           });
       }
     },

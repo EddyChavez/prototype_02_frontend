@@ -201,7 +201,8 @@ export default {
           this.list_members = response.data[0].members;
         })
         .catch(error => {
-          console.log(error);
+          if (error.response.data.detail)
+            this.$store.dispatch("expireSession", true);
         });
     },
     loadGroups() {

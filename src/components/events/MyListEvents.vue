@@ -4,13 +4,20 @@
       <v-data-table
         :headers="headers"
         :items="events"
+        :search="search"
         sort-by="calories"
         class="elevation-1"
       >
         <template v-slot:top>
           <v-toolbar flat>
             <v-toolbar-title></v-toolbar-title>
-
+            <v-text-field
+              v-model="search"
+              append-icon="mdi-magnify"
+              label="Buscar"
+              single-line
+              hide-details
+            ></v-text-field>
             <v-spacer></v-spacer>
             <v-dialog v-model="dialog" max-width="500px">
               <template v-slot:activator="{ on, attrs }">
@@ -188,10 +195,6 @@
                 >
                 <v-card-actions>
                   <v-spacer></v-spacer>
-
-                  <!-- <v-btn color="blue darken-1" text @click="closeDelete"
-                  >Cancel</v-btn
-                > -->
                   <v-btn color="blue darken-1" text @click="closeAviso()"
                     >OK</v-btn
                   >
@@ -228,36 +231,8 @@
         <template v-slot:item.actions="{ item }">
           <v-icon @click="editItem(item)"> mdi-pencil </v-icon>
           <v-icon @click="deleteItem(item)"> mdi-close </v-icon>
-          <!-- <v-btn
-          class="mr-2"
-          outlined
-          color="indigo"
-          fab
-          small
-          @click="editItem(item)"
-        >
-          <v-icon small>
-            mdi-pencil
-          </v-icon>
-        </v-btn> -->
-
-          <!-- <v-btn
-          class="mr-2"
-          outlined
-          color="red"
-          fab
-          small
-          @click="deleteItem(item)"
-        >
-          <v-icon small>
-            mdi-delete
-          </v-icon>
-        </v-btn> -->
         </template>
         <template v-slot:no-data>
-          <!-- <v-btn color="primary" @click="initialize">
-          Reset
-        </v-btn> -->
           Aun no haz creado eventos!
         </template>
       </v-data-table>
@@ -273,6 +248,7 @@ export default {
   name: "MyListEvents",
   data() {
     return {
+      search: "",
       aviso: false,
       valid: true,
       dialog: false,
@@ -351,9 +327,15 @@ export default {
   },
   methods: {
     initialize() {
-      apiEvents.byUser().then(response => {
-        this.events = response.data;
-      });
+      apiEvents
+        .byUser()
+        .then(response => {
+          this.events = response.data;
+        })
+        .catch(error => {
+          if (error.response.data.detail)
+            this.$store.dispatch("expireSession", true);
+        });
     },
     onFileSelected() {
       this.editedItem.image = this.newImage;
@@ -368,7 +350,6 @@ export default {
         .then(response => {
           flag = response.data.data;
           if (flag === false) {
-            //console.log("No tienes permiso para editar este evento!");
             this.aviso = true;
             this.$router.push({
               name: "Mis Eventos"
@@ -383,14 +364,6 @@ export default {
         .catch(error => {
           flag = false;
         });
-
-      /* if (sessionStorage.getItem("IdUser") == item.create_by.id) {
-        this.$router.push({
-          name: "Administrar Evento",
-          params: { id: item.id },
-        });
-      } else {
-      } */
     },
     editItem(item) {
       this.editedIndex = this.events.indexOf(item);
