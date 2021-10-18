@@ -37,7 +37,7 @@
           </v-col>
         </v-row>
         <v-row v-if="detail.file" justify="center">
-          <v-btn class="ma-2" color="blue" :href="detail.file" download rounded>
+          <v-btn class="ma-2" color="blue"  @click="desArchivo(detail.file)" download rounded>
             Descargar Archivo
           </v-btn>
         </v-row>
@@ -69,6 +69,9 @@ export default {
       apiEvents.retrieve(this.idEvent).then(response => {
         this.event = response.data;
       });
+    },
+    desArchivo (archivo){
+      window.open(archivo, '_blank');
     }
   }
 };

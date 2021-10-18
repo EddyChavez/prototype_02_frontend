@@ -95,7 +95,7 @@
               v-if="loadfile"
               class="ma-2"
               color="blue"
-              :href="loadfile"
+              @click="desArchivo(loadfile)"
               download
               rounded
               small
@@ -130,7 +130,7 @@
               v-if="loadfile"
               class="ma-2"
               color="blue"
-              :href="loadfile"
+              @click="desArchivo(loadfile)"
               download
               rounded
             >
@@ -369,6 +369,9 @@ export default {
 
       this.showButton = !this.showButton;
       this.showForm = !this.showForm;
+    },
+    desArchivo (archivo){
+      window.open(archivo, '_blank');
     }
   }
 };

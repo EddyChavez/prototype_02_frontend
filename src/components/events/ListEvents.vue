@@ -174,10 +174,33 @@ export default {
         else this.numPages = num;
       });
     },
+<<<<<<< HEAD
     showDetailPanel: function(idEvent) {
       this.$router.push({
         name: "Detalle del Evento",
         params: { id: idEvent }
+=======
+    showDetailPanel: function (idEvent) {
+      let notification = {
+        snackbar: true,
+        direction: "top center",
+        msg: "Evento privado",
+        color: "error",
+      };
+      let list_users = [];
+      apiOrders.byEvent(idEvent).then((response) => {
+        response.data.forEach((dato) => {
+          list_users.push(dato.user);
+        });
+        if (list_users.find((e) => e.id == sessionStorage.getItem("IdUser"))) {
+          this.$router.push({
+            name: "Detalle del Evento",
+            params: { id: idEvent },
+          });
+        } else {
+          this.$store.dispatch("showNotification", notification);
+        }
+>>>>>>> aa408531bcc756388873649349055502e514322b
       });
       // let notification = {
       //   snackbar: true,
