@@ -174,12 +174,6 @@ export default {
         else this.numPages = num;
       });
     },
-<<<<<<< HEAD
-    showDetailPanel: function(idEvent) {
-      this.$router.push({
-        name: "Detalle del Evento",
-        params: { id: idEvent }
-=======
     showDetailPanel: function (idEvent) {
       let notification = {
         snackbar: true,
@@ -200,7 +194,6 @@ export default {
         } else {
           this.$store.dispatch("showNotification", notification);
         }
->>>>>>> aa408531bcc756388873649349055502e514322b
       });
       // let notification = {
       //   snackbar: true,

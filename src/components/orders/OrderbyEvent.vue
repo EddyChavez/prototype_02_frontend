@@ -54,7 +54,7 @@
           <v-btn rounded color="#78909C" dark @click="print">
             <v-icon left> mdi-printer </v-icon>
             Imprimir
-          </v-btn> -->
+          </v-btn>
 
           <v-btn
             :disabled="disable_p"
