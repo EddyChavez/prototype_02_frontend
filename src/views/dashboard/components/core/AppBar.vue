@@ -148,9 +148,10 @@ export default {
       setDrawer: "SET_DRAWER"
     }),
     closeSession() {
-      deleteTokenApi();
-      sessionStorage.clear(); 
-      this.$router.push("/login");
+      // deleteTokenApi();
+      // sessionStorage.clear();
+      // this.$router.push("/login");
+      this.$store.dispatch("expireSession", true);
     }
   },
   beforeMount() {
@@ -159,7 +160,7 @@ export default {
       apiUsers
         .retrieve()
         .then(response => {
-          this.$store.dispatch("retrieveUser", response.data);          
+          this.$store.dispatch("retrieveUser", response.data);
           this.getUser = response.data;
         })
         .catch(error => {
@@ -171,3 +172,11 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+@media print {
+  #app-bar {
+    display: none !important;
+  }
+}
+</style>

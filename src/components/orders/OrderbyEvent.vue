@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <v-row justify="center">
-      <v-col cols="12" md="9">
+      <v-col cols="12" md="9" id="dvPrint">
         <v-row align="center" justify="space-around">
           <v-btn rounded color="#78909C" dark @click="descargaLista">
             <v-icon left>
@@ -54,7 +54,7 @@
           <v-btn rounded color="#78909C" dark @click="print">
             <v-icon left> mdi-printer </v-icon>
             Imprimir
-          </v-btn>
+          </v-btn> -->
 
           <v-btn
             :disabled="disable_p"
@@ -153,48 +153,385 @@
       </v-col>
 
       <v-col cols="12" md="9">
-        <div ref="content">
-          <v-sheet elevation="10">
-            <base-material-card color="primary">
-              <template v-slot:heading>
-                <v-row>
-                  <v-col cols="12" md="10">
-                    <div class="display-2 font-weight-light">
-                      {{ nameEvent }}
+        <v-sheet elevation="10">
+          <base-material-card color="primary">
+            <template v-slot:heading>
+              <v-row>
+                <v-col cols="12" md="10">
+                  <div class="display-2 font-weight-light">
+                    {{ nameEvent }}
+                  </div>
+                </v-col>
+                <v-col cols="12" md="2" class="text-center">
+                  <v-tooltip left>
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-btn
+                        :loading="isUpdating"
+                        dark
+                        icon
+                        v-bind="attrs"
+                        v-on="on"
+                        @click="loadOrder()"
+                      >
+                        <v-icon dark>
+                          mdi-refresh
+                        </v-icon>
+                      </v-btn>
+                    </template>
+                    <span>Actualizar Pedido</span>
+                  </v-tooltip>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="12" md="5">
+                  <div class="display-1 float-md-center font-weight-bold">
+                    Cantidad: {{ count }}
+                  </div>
+                </v-col>
+                <v-col cols="12" md="4">
+                  <div class="display-1 float-md-center font-weight-bold">
+                    Pagado: $ {{ parseFloat(paid_out).toFixed(2) }}
+                  </div>
+                </v-col>
+                <v-col cols="12" md="3">
+                  <div class="display-1 float-md-center font-weight-bold">
+                    Total: $ {{ parseFloat(total).toFixed(2) }}
+                  </div>
+                </v-col>
+              </v-row>
+            </template>
+
+            <v-data-table
+              :headers="orderstHeaders"
+              :items="list_orders"
+              :single-expand="singleExpand"
+              :expanded.sync="expanded"
+              item-key="user.id"
+              show-expand
+              class="elevation-1"
+            >
+              <template v-slot:top>
+                <v-toolbar flat>
+                  <div class="display-1 float-md-center font-weight-bold">
+                    <v-chip
+                      class="ma-2"
+                      :color="getColor(status)"
+                      label
+                      text-color="white"
+                      x-small
+                    >
+                      {{ status }}
+                    </v-chip>
+                  </div>
+                  <v-spacer></v-spacer>
+                  <v-progress-circular
+                    :value="progress_value"
+                    :size="50"
+                    color="green"
+                  >
+                    <div
+                      class="display-1 float-md-center font-weight-bold text--white"
+                    >
+                      {{ Math.ceil(progress_value) }}%
                     </div>
-                  </v-col>
-                  <v-col cols="12" md="2" class="text-center">
-                    <v-tooltip left>
-                      <template v-slot:activator="{ on, attrs }">
+                  </v-progress-circular>
+                  <v-spacer></v-spacer>
+                  <v-switch
+                    v-model="showDetail"
+                    @change="expand()"
+                    label="Expandir"
+                    class="mt-2"
+                  ></v-switch>
+                  <v-dialog v-model="dialog" persistent width="350px">
+                    <v-card>
+                      <v-card-title class="text-h5">
+                        Agregar Pago
+                      </v-card-title>
+                      <v-card-text>
+                        <v-form ref="form" v-model="valid" lazy-validation>
+                          <v-container>
+                            <v-row justify="center">
+                              <v-col cols="12">
+                                <div class="text-center">
+                                  <v-avatar size="50" left v-if="avatar">
+                                    <v-img :src="avatar"></v-img>
+                                  </v-avatar>
+                                  <v-avatar color="indigo" v-else>
+                                    <span
+                                      v-if="initials"
+                                      class="white--text text-h5"
+                                      >{{ initials }}</span
+                                    >
+                                    <v-img
+                                      v-else
+                                      src="@/assets/user_group.png"
+                                    ></v-img>
+                                  </v-avatar>
+                                  <span class="ma-2" v-if="name"
+                                    >{{ name }}
+                                  </span>
+                                  <span class="ma-2" v-else>
+                                    {{ email }}
+                                  </span>
+                                </div>
+                              </v-col>
+                              <v-col cols="12" md="12">
+                                <div class="text-center">
+                                  <div
+                                    class="display-2 float-md-center font-weight-bold"
+                                  >
+                                    Total: $ {{ payment.amount }}
+                                  </div>
+                                </div>
+                              </v-col>
+                              <v-col cols="12" md="12">
+                                <v-text-field
+                                  v-model="money"
+                                  label="Monto"
+                                  class=" purple-input"
+                                  prepend-icon="mdi-currency-usd"
+                                  :rules="moneyRules"
+                                />
+                              </v-col>
+                              <v-col cols="12" md="12">
+                                <div class="text-center">
+                                  <div
+                                    class="display-1 float-md-center font-weight-bold"
+                                  >
+                                    cambio: $ {{ remaining }}
+                                  </div>
+                                </div>
+                              </v-col>
+                            </v-row>
+                          </v-container>
+                        </v-form>
+                      </v-card-text>
+                      <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn color="green darken-1" text @click="clearForm()">
+                          Cancelar
+                        </v-btn>
                         <v-btn
-                          :loading="isUpdating"
-                          dark
-                          icon
-                          v-bind="attrs"
-                          v-on="on"
-                          @click="loadOrder()"
+                          color="green darken-1"
+                          text
+                          @click="editPayment(payment.id)"
                         >
+                          Aceptar
                           <v-icon dark> mdi-refresh </v-icon>
                         </v-btn>
-                      </template>
-                      <span>Actualizar Pedido</span>
-                    </v-tooltip>
-                  </v-col>
-                </v-row>
-                <v-row>
-                  <v-col cols="12" md="5">
-                    <div class="display-1 float-md-center font-weight-bold">
-                      Cantidad: {{ count }}
+                      </v-card-actions>
+                    </v-card>
+                  </v-dialog>
+                </v-toolbar>
+              </template>
+              <template v-slot:expanded-item="{ headers, item }">
+                <td :colspan="headers.length">
+                  <v-simple-table>
+                    <thead>
+                      <th>Producto</th>
+                      <th>Descripcion</th>
+                      <th>Precio</th>
+                      <th>Cantidad</th>
+                      <th>Subtotal</th>
+                    </thead>
+                    <tbody>
+                      <tr v-for="detail in item.items" v-bind:key="detail.id">
+                        <td>{{ detail.product }}</td>
+                        <td>{{ detail.description }}</td>
+
+                        <td class="text-center">$ {{ detail.price }}</td>
+                        <td class="text-center">{{ detail.quantity }}</td>
+                        <td class="text-center">
+                          $
+                          {{
+                            subTotal(detail.quantity, detail.price).toFixed(2)
+                          }}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </v-simple-table>
+                </td>
+              </template>
+              <template v-slot:item.user.avatar="{ item }">
+                <v-avatar size="50" left v-if="item.user.avatar">
+                  <v-img :src="item.user.avatar"></v-img>
+                </v-avatar>
+                <v-avatar color="indigo" v-else>
+                  <span
+                    v-if="item.user.get_initials"
+                    class="white--text text-h5"
+                    >{{ item.user.get_initials }}</span
+                  >
+                  <v-img v-else src="@/assets/user_group.png"></v-img>
+                </v-avatar>
+              </template>
+              <template v-slot:item.user.get_full_name="{ item }">
+                <span v-if="item.user.get_full_name"
+                  >{{ item.user.get_full_name }}
+                </span>
+                <span v-else> {{ item.user.email }} </span>
+              </template>
+              <template v-slot:item.amount="{ item }">
+                $ {{ item.amount }}
+              </template>
+              <template v-slot:item.quantity="{ item }">
+                {{ item.quantity }}
+              </template>
+              <template v-slot:item.paid_out="{ item }">
+                <v-chip
+                  v-if="item.paid_out == false"
+                  color="red"
+                  dark
+                  @click="showPayment(item)"
+                >
+                  $ {{ item.amount_paid }}
+                </v-chip>
+                <v-chip v-else color="green" dark @click="showPayment(item)">
+                  $ {{ item.amount_paid }}
+                </v-chip>
+              </template>
+              <template v-slot:item.date="{ item }">
+                {{ frontEndDateFormat(item.date) }}
+              </template>
+            </v-data-table>
+          </base-material-card>
+        </v-sheet>
+
+        <!-- <vue-html2pdf
+          :show-layout="false"
+          :float-layout="true"
+          :enable-download="false"
+          :preview-modal="false"
+          filename="hehehe"
+          :paginate-elements-by-height="1100"
+          :pdf-quality="2"
+          pdf-format="a4"
+          pdf-orientation="portrait"
+          pdf-content-width="600px"
+          :manual-pagination="false"
+          @progress="onProgress($event)"
+          @startPagination="startPagination()"
+          @hasPaginated="hasPaginated()"
+          @beforeDownload="beforeDownload($event)"
+          @hasDownloaded="hasDownloaded($event)"
+          ref="html2Pdf"
+        >
+          <pdf-content slot="pdf-content">
+            <div ref="content" id="report">
+              <base-material-card color="green">
+                <template v-slot:heading>
+                  <v-row justify="center">
+                    <v-col cols="12" md="12">
+                      <div class="text-center">
+                        <div class="display-2 float-md-center">
+                          <h4>{{ nameEvent }}</h4>
+                        </div>
+                      </div>
+                    </v-col>
+                  </v-row>
+                  <v-row>
+                    <v-col cols="12" md="5">
+                      <div class="display-1 float-md-center font-weight-bold">
+                        Cantidad: {{ count }}
+                      </div>
+                    </v-col>
+                    <v-col cols="12" md="7">
+                      <div class="display-1 float-md-right font-weight-bold">
+                        Total: ${{ parseFloat(total).toFixed(2) }}
+                      </div>
+                    </v-col>
+                  </v-row>
+                </template>
+
+                <v-data-table
+                  :headers="headersPDF"
+                  :items="list_orders"
+                  :single-expand="singleExpand"
+                  :expanded.sync="expanded"
+                  item-key="user.id"
+                  show-expand
+                  class="elevation-1"
+                  hide-default-footer
+                  disable-pagination
+                >
+                  <template v-slot:expanded-item="{ headers, item }">
+                    <td :colspan="headers.length">
+                      <v-simple-table>
+                        <thead>
+                          <th>Producto</th>
+                          <th>Descripcion</th>
+                          <th>Precio</th>
+                          <th>Cantidad</th>
+                          <th>Subtotal</th>
+                        </thead>
+                        <tbody>
+                          <tr
+                            v-for="detail in item.items"
+                            v-bind:key="detail.id"
+                          >
+                            <td>{{ detail.product }}</td>
+                            <td>{{ detail.description }}</td>
+
+                            <td class="text-center">$ {{ detail.price }}</td>
+                            <td class="text-center">
+                              {{ detail.quantity }}
+                            </td>
+                            <td class="text-center">
+                              $
+                              {{
+                                subTotal(detail.quantity, detail.price).toFixed(
+                                  2
+                                )
+                              }}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </v-simple-table>
+                    </td>
+                  </template>
+                  <template v-slot:item.user.avatar="{ item }"> </template>
+                  <template v-slot:item.user.get_full_name="{ item }">
+                    <span v-if="item.user.get_full_name"
+                      >{{ item.user.get_full_name }}
+                    </span>
+                    <span v-else> {{ item.user.email }} </span>
+                  </template>
+                  <template v-slot:item.amount="{ item }">
+                    $ {{ item.amount }}
+                  </template>
+                  <template v-slot:item.quantity="{ item }">
+                    {{ item.quantity }}
+                  </template>
+                  <template v-slot:item.date="{ item }">
+                    {{ frontEndDateFormat(item.date) }}
+                  </template>
+                </v-data-table>
+              </base-material-card>
+            </div>
+          </pdf-content>
+        </vue-html2pdf> -->
+      </v-col>
+      <v-col cols="12" xl="9" md="9" sm="9" xs="9" v-show="flagPDF">
+        <div ref="content" id="report">
+          <v-sheet elevation="10">
+            <base-material-card color="green">
+              <template v-slot:heading>
+                <v-row justify="center">
+                  <v-col cols="12" xl="12" md="12" sm="12" xs="12">
+                    <div class="text-center">
+                      <h2>
+                        <strong>{{ nameEvent }}</strong>
+                      </h2>
                     </div>
                   </v-col>
-                  <v-col cols="12" md="4">
-                    <div class="display-1 float-md-center font-weight-bold">
-                      Pagado: $ {{ parseFloat(paid_out).toFixed(2) }}
+                  <v-col cols="12" xl="5" md="5" sm="5" xs="5">
+                    <div class="text-center">
+                      <h3>Cantidad Total: {{ count }}</h3>
                     </div>
                   </v-col>
-                  <v-col cols="12" md="3">
-                    <div class="display-1 float-md-center font-weight-bold">
-                      Total: $ {{ parseFloat(total).toFixed(2) }}
+                  <v-col cols="12" xl="7" md="7" sm="7" xs="7">
+                    <div class="text-center">
+                      <h3>Total: ${{ parseFloat(total).toFixed(2) }}</h3>
                     </div>
                   </v-col>
                 </v-row>
@@ -209,6 +546,9 @@
                 item-key="user.id"
                 show-expand
                 class="elevation-1"
+                hide-default-footer
+                disable-pagination
+                mobile-breakpoint="0"
               >
                 <template v-slot:top>
                   <v-toolbar flat>
@@ -356,7 +696,9 @@
                           <td>{{ detail.description }}</td>
 
                           <td class="text-center">$ {{ detail.price }}</td>
-                          <td class="text-center">{{ detail.quantity }}</td>
+                          <td class="text-center">
+                            {{ detail.quantity }}
+                          </td>
                           <td class="text-center">
                             $
                             {{
@@ -368,19 +710,7 @@
                     </v-simple-table>
                   </td>
                 </template>
-                <template v-slot:item.user.avatar="{ item }">
-                  <v-avatar size="50" left v-if="item.user.avatar">
-                    <v-img :src="item.user.avatar"></v-img>
-                  </v-avatar>
-                  <v-avatar color="indigo" v-else>
-                    <span
-                      v-if="item.user.get_initials"
-                      class="white--text text-h5"
-                      >{{ item.user.get_initials }}</span
-                    >
-                    <v-img v-else src="@/assets/user_group.png"></v-img>
-                  </v-avatar>
-                </template>
+                <template v-slot:item.user.avatar="{ item }"> </template>
                 <template v-slot:item.user.get_full_name="{ item }">
                   <span v-if="item.user.get_full_name"
                     >{{ item.user.get_full_name }}
@@ -392,30 +722,6 @@
                 </template>
                 <template v-slot:item.quantity="{ item }">
                   {{ item.quantity }}
-                </template>
-                <template v-slot:item.paid_out="{ item }">
-                  <v-chip
-                    v-if="item.paid_out == false"
-                    color="red"
-                    dark
-                    @click="showPayment(item)"
-                  >
-                    $ {{ item.amount_paid }}
-                  </v-chip>
-                  <v-chip v-else color="green" dark @click="showPayment(item)">
-                    $ {{ item.amount_paid }}
-                  </v-chip>
-                  <!-- <v-icon
-                    large
-                    v-if="item.paid_out == false"
-                    color="red"
-                    @click="showPayment(item)"
-                  >
-                    mdi-cash-remove
-                  </v-icon>
-                  <v-icon large v-else color="green" @click="showPayment(item)">
-                    mdi-cash-plus
-                  </v-icon> -->
                 </template>
                 <template v-slot:item.date="{ item }">
                   {{ frontEndDateFormat(item.date) }}
@@ -447,6 +753,37 @@ export default {
   },
   data() {
     return {
+      flagPDF: false,
+      options: {
+        // margins: {
+        //   top: 40,
+        //   bottom: 60,
+        //   left: 40,
+        //   width: 522
+        // },
+        //margin: [40, 60, 40, 60],
+        margin: 1,
+
+        filename: `hehehe.pdf`,
+
+        image: {
+          type: "jpeg",
+          quality: 0.98
+        },
+
+        enableLinks: false,
+
+        html2canvas: {
+          scale: 1,
+          useCORS: true
+        },
+
+        jsPDF: {
+          unit: "pt",
+          format: "a4",
+          orientation: "portrait"
+        }
+      },
       valid: true,
       loading: false,
       isUpdating: false,
@@ -466,11 +803,22 @@ export default {
           value: "user.avatar",
         },
         { text: "Usuario", value: "user.get_full_name" },
-        // { text: "Fecha", value: "date" },
         { text: "Pagado", value: "paid_out" },
         { text: "Cantidad", value: "quantity" },
         { text: "Total", value: "amount" },
         { text: "", value: "data-table-expand" },
+      ],
+      headersPDF: [
+        {
+          text: "",
+          align: "start",
+          sortable: false,
+          value: "user.avatar"
+        },
+        { text: "Usuario", value: "user.get_full_name" },
+        { text: "Cantidad", value: "quantity" },
+        { text: "Total", value: "amount" },
+        { text: "", value: "data-table-expand" }
       ],
       list_orders: [],
       expanded: [],
@@ -576,7 +924,6 @@ export default {
         response.data.forEach((dato) => {
           this.list_users.push(dato.user);
         });
-        console.log(this.list_users);
         Object.entries(this.list_orders).forEach(([key, val]) => {
           count.push(val.quantity);
           total.push(parseFloat(val.amount));
@@ -610,7 +957,7 @@ export default {
         color: "warning",
       };
 
-      if (this.approved) {
+      if (this.approved == false) {
         this.dialog = true;
 
         this.money = 0;
@@ -631,26 +978,99 @@ export default {
       this.money = 0;
       this.remaining = 0;
     },
-    generateReport() {
-      domtoimage.toPng(this.$refs.content).then(function (dataUrl) {
-        var img = new Image();
-        img.src = dataUrl;
+    generatePDF(nameEvent) {
+      this.flagPDF = true;
 
-        const doc = new jsPDF({
-          orientation: "portrait", // vertical
-          //orientation: "landscape", // horizaontal
-          unit: "pt",
-          format: [612, 792], // tamaño carta
-        });
+      var filename = nameEvent + ".pdf";
+      var element = document.getElementById("report");
+      var opt = {
+        margin: 1,
+        filename: filename,
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: "in", format: "letter", orientation: "portrait" }
+      };
 
-        doc.addImage(img, "JPEG", 10, 25); // eje x y
-        const date = new Date();
-        const filename = "pedido.pdf";
-        doc.save(filename);
-      });
+      html2pdf()
+        .set(opt)
+        .from(element)
+        .save();
+
+      this.flagPDF = false;
     },
+    // async beforeDownload({ html2pdf, options, pdfContent }) {
+    //   console.log("ejecutando..");
+    //   await html2pdf()
+    //     .set(options)
+    //     .from(pdfContent)
+    //     .toPdf()
+    //     .get("pdf")
+    //     .then(pdf => {
+    //       const totalPages = pdf.internal.getNumberOfPages();
+    //       for (let i = 1; i <= totalPages; i++) {
+    //         pdf.setPage(i);
+    //         pdf.setFontSize(10);
+    //         pdf.setTextColor(150);
+    //         pdf.text(
+    //           "Page " + i + " of " + totalPages,
+    //           pdf.internal.pageSize.getWidth() * 0.88,
+    //           pdf.internal.pageSize.getHeight() - 0.3
+    //         );
+    //       }
+    //     })
+    //     .save();
+    // },
+    // generate2() {
+    //   const doc = new jsPDF();
+    //   const contentHtml = this.$refs.content;
+    //   doc.fromHTML(contentHtml, 15, 15, {
+    //     width: 170
+    //   });
+    //   doc.save("sample.pdf");
+    // },
+    // downloadWithCSS() {
+    //   //const doc = new jsPDF();
+    //   const doc = new jsPDF({
+    //     orientation: "portrait", // vertical
+    //     //orientation: "landscape", // horizaontal
+    //     unit: "pt",
+    //     format: [612, 792] // tamaño carta
+    //   });
+    //   /** WITH CSS */
+    //   var canvasElement = document.createElement("canvas");
+    //   html2canvas(this.$refs.content, { canvas: canvasElement }).then(function(
+    //     canvas
+    //   ) {
+    //     const img = canvas.toDataURL("image/jpeg", 0.8);
+    //     doc.addImage(img, "JPEG", 10, 25);
+    //     doc.save("sample.pdf");
+    //   });
+    // },
+    // generatePDF() {
+    //   this.expand();
+
+    //   this.$refs.html2Pdf.generatePdf();
+    // },
+    // generateReport(nameEvent) {
+    //   let filename = nameEvent + ".pdf";
+
+    //   domtoimage.toPng(this.$refs.content).then(function(dataUrl) {
+    //     var img = new Image();
+    //     img.src = dataUrl;
+
+    //     const doc = new jsPDF({
+    //       orientation: "portrait",
+    //       unit: "in",
+    //       format: "a4"
+    //     });
+
+    //     doc.addImage(img, "JPEG", 10, 10, 10, 10);
+    //     doc.save(filename);
+    //   });
+    // },
     print() {
       window.print();
+      //this.$htmlToPaper("report");
     },
     closeEvent() {
       this.closeDialog = true;
@@ -666,10 +1086,8 @@ export default {
         this.updateStatus("LLEGO PEDIDO");
         this.deliveryDialog = false;
         this.loadOrder();
-        //
-        let formData = new FormData();
 
-        console.log(this.members);
+        let formData = new FormData();
 
         formData.append("idEvent", this.idEvent);
         this.list_users.forEach((item) => {
@@ -824,6 +1242,15 @@ export default {
 </script>
 
 <style scoped>
+@media print {
+  #dvPrint {
+    display: none !important;
+  }
+}
+/* * {
+  margin: 1 !important;
+} */
+
 .v-progress-circular {
   margin: 1rem;
 }

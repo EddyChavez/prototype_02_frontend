@@ -4,11 +4,13 @@
 
     <dashboard-core-drawer />
 
-    <alerts />
-
     <dashboard-core-view />
 
     <dashboard-core-settings />
+
+    <alerts />
+
+    <close-session />
   </v-app>
 </template>
 
@@ -22,7 +24,8 @@ export default {
     DashboardCoreDrawer: () => import("./components/core/Drawer"),
     DashboardCoreSettings: () => import("./components/core/Settings"),
     DashboardCoreView: () => import("./components/core/View"),
-    Alerts: () => import("@/components/base/Alerts")
+    Alerts: () => import("@/components/base/Alerts"),
+    CloseSession: () => import("@/components/base/CloseSession")
   },
   data: () => ({
     expandOnHover: false
