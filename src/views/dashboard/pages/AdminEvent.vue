@@ -57,7 +57,7 @@ export default {
   },
   data() {
     return {
-      aviso: false,
+      notice: false,
       showUsers: false,
       showMembers: false,
       button_text: "Agregar Participantes",

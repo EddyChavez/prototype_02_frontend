@@ -37,7 +37,7 @@ export default {
     };
   },
   mounted() {
-    this.loadVideo("https://www.youtube.com/watch?v=CD-E-LDc384");
+    this.loadVideo("https://www.youtube.com/watch?v=CD-E-LDc384");//video
   },
   methods: {
     loadVideo(url) {

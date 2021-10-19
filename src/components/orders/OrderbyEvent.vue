@@ -22,7 +22,7 @@
                           rounded
                           color="green darken-1"
                           dark
-                          @click="CrearPDF(0)"
+                          @click="CreatePDF(0)"
                         >
                           Pedidos
                         </v-btn>
@@ -30,7 +30,7 @@
                           rounded
                           color="blue darken-1"
                           dark
-                          @click="CrearPDF(1)"
+                          @click="CreatePDF(1)"
                         >
                           Invitados
                         </v-btn>
@@ -444,7 +444,6 @@ import domtoimage from "dom-to-image";
 export default {
   name: "OrderbyEvent",
   components: {
-    //VueHtml2pdf
   },
   data() {
     return {
@@ -748,17 +747,18 @@ export default {
       });
     },
 
-    CrearPDF(idLista) {
+    CreatePDF(idLista) {
       var source = this.$refs["myTable"];
       let rows = [];
-      let pdfPedido = "Pedidos_" + this.nameEvent;
-      let pdfLista = "Invitados_" + this.nameEvent;
+      let pdfOrder = "Pedidos_" + this.nameEvent;
+      let pdfList = "Invitados_" + this.nameEvent;
       let i = 1;
+      let name = null;
       if (idLista) {
         source.items.forEach((element) => {
           let objrow = {
-            ID: i.toString(),
-            USUARIO: element.user.get_full_name.toString(),
+            "#": i.toString(),
+            INVITADO: element.user.get_full_name.toString(),
           };
           rows.push(Object.assign({}, objrow));
           i++;
@@ -766,16 +766,19 @@ export default {
       } else {
         source.items.forEach((element) => {
           element.items.forEach((item) => {
-            let objrow = {
-              ID: i.toString(),
+            name = name === null ? element.user.get_full_name : " "; 
+            let objrow = {              
+              "#" : i.toString(),
+              INVITADO: name,//element.user.get_full_name.toUpperCase(),
               PRODUCTO: item.product.toUpperCase(),
               DESCRIPCION: item.description.toUpperCase(),
               PRECIO: item.price.toUpperCase(),
               CANTIDAD: item.quantity.toString(),
             };
-            rows.push(Object.assign({}, objrow));
+            rows.push(Object.assign({}, objrow));            
             i++;
           });
+          name = null;
         });
       }
 
@@ -797,10 +800,11 @@ export default {
       let headers = function (id) {
         let result = [];
         if (id) {
-          result = createHeaders(["ID", "USUARIO"]);
+          result = createHeaders(["#", "INVITADO"]);
         } else {
           result = createHeaders([
-            "ID",
+            "#",
+            "INVITADO",
             "PRODUCTO",
             "DESCRIPCION",
             "PRECIO",
@@ -812,8 +816,8 @@ export default {
       var doc = new jsPDF({ putOnlyUsedFonts: true });
       doc.table(10, 10, rows, headers(idLista), { autoSize: true });
       idLista == true
-        ? doc.save(pdfLista + ".pdf")
-        : doc.save(pdfPedido + ".pdf");
+        ? doc.save(pdfList + ".pdf")
+        : doc.save(pdfOrder + ".pdf");
     },
   },
 };

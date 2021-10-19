@@ -180,9 +180,9 @@
                 </v-card-actions>
               </v-card>
             </v-dialog>
-            <v-dialog v-model="aviso" max-width="300px">
+            <v-dialog v-model="notice" max-width="300px">
               <v-card elevation="24">
-                <v-card-title class="text-h5">Aviso</v-card-title>
+                <v-card-title class="text-h5">notice</v-card-title>
                 <v-card-text align="center" justify="center"
                   >¡No puedes realizar esta acción!</v-card-text
                 >
@@ -192,7 +192,7 @@
                   <!-- <v-btn color="blue darken-1" text @click="closeDelete"
                   >Cancel</v-btn
                 > -->
-                <v-btn color="blue darken-1" text @click="closeAviso()"
+                <v-btn color="blue darken-1" text @click="closeNotice()"
                   >OK</v-btn
                 >
                 <v-spacer></v-spacer>
@@ -273,7 +273,7 @@ export default {
   name: "MyListEvents",
   data() {
     return {
-      aviso: false,
+      notice: false,
       valid: true,
       dialog: false,
       dialogDelete: false,
@@ -369,7 +369,7 @@ export default {
           flag = response.data.data;
           if (flag === false) {
             //console.log("No tienes permiso para editar este evento!");
-            this.aviso = true;
+            this.notice = true;
             this.$router.push({
               name: "Mis Eventos"
             });
@@ -448,8 +448,8 @@ export default {
         this.editedIndex = -1;
       });
     },
-    closeAviso() {
-      this.aviso = false;
+    closeNotice() {
+      this.notice = false;
     },
 
     save() {
